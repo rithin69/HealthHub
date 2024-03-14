@@ -51,6 +51,8 @@ const Login = () => {
         .then((userCredential) => {
           const user = userCredential.user;
           createUserDocument(user, {...formData});
+          navigate('/patientdashboard');
+
         })
         .catch((error) => {
           const errorCode = error.code;

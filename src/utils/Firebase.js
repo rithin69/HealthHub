@@ -1,7 +1,8 @@
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, getDoc,query,where, getDocs } from 'firebase/firestore';
+//import {hospital} from "./Practicesjson"
 
 const firebaseConfig = {
   apiKey: "AIzaSyD13xG4R_YN7jt3LUQVBWmOwSdFbXSsV_8",
@@ -23,7 +24,7 @@ export const firestore = getFirestore(app);
 export const createUserDocument = async (user, additionalData) => {
   if (!user) return;
 
-  const userRef = doc(firestore, 'patient', user.uid);
+  const userRef = doc(firestore, 'users', user.uid);
   
   const snapshot = await getDoc(userRef);
   
@@ -37,7 +38,7 @@ export const createUserDocument = async (user, additionalData) => {
     
     try {
       await setDoc(userRef, {
-        fullName,
+        fullName: fullName,
         dob,
         address,
         email,
@@ -51,3 +52,47 @@ export const createUserDocument = async (user, additionalData) => {
     }
   }
 }
+
+
+
+export const createHospitalDocuments = async (hospitalsArray) => {
+  // console.log("Creating hospital documents...");
+  const hospitalsCollectionRef = collection(firestore, 'practice');
+
+  // Check if hospitalsArray is actually an array
+  if (!Array.isArray(hospitalsArray)) {
+    console.error('Expected an array for hospitalsArray, received:', hospitalsArray);
+    return;  // Exit the function if it's not an array
+  }
+
+  for (const hospital of hospitalsArray) {
+    const { name, image, address, city, services } = hospital;  // Including services
+
+    // Create a query to check if there's an existing hospital with the same name
+    const hospitalQuery = query(hospitalsCollectionRef, where("name", "==", name));
+    const querySnapshot = await getDocs(hospitalQuery);
+
+    if (querySnapshot.empty) {  // If there's no existing document with the same name
+      const hospitalRef = doc(hospitalsCollectionRef);  // Create a new document reference
+      
+      try {
+        await setDoc(hospitalRef, {
+          name,
+          image,
+          address,
+          city,
+          services,  // Save the array of services
+          createdAt: new Date()
+        });
+        // console.log(`Added new hospital document for ${name}`);
+      } catch (error) {
+        // console.error("Error adding hospital document:", name, error);
+      }
+    } else {
+      // console.log(`Hospital with name ${name} already exists.`);
+    }
+  }
+};
+
+
+
