@@ -24,7 +24,7 @@ export const firestore = getFirestore(app);
 export const createUserDocument = async (user, additionalData) => {
   if (!user) return;
 
-  const userRef = doc(firestore, 'users', user.uid);
+  const userRef = doc(firestore, 'patient', user.uid);
   
   const snapshot = await getDoc(userRef);
   
@@ -44,9 +44,9 @@ export const createUserDocument = async (user, additionalData) => {
         email,
         password,
         createdAt: new Date(),
-        uid,
+        PatientId:uid,
         PracticeRegistered:false,
-        Adminapproved:false
+        // Adminapproved:false
         
       });
     } catch (error) {
@@ -68,7 +68,7 @@ export const createHospitalDocuments = async (hospitalsArray) => {
   }
 
   for (const hospital of hospitalsArray) {
-    const { name, image, address, city, services } = hospital;  // Including services
+    const { practiceid,name, image, address, city, services} = hospital;  // Including services
 
     // Create a query to check if there's an existing hospital with the same name
     const hospitalQuery = query(hospitalsCollectionRef, where("name", "==", name));
@@ -79,6 +79,7 @@ export const createHospitalDocuments = async (hospitalsArray) => {
       
       try {
         await setDoc(hospitalRef, {
+          practiceid,
           name,
           image,
           address,
