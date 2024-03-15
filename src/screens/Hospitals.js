@@ -5,7 +5,7 @@ import { firestore } from '../utils/Firebase';
 
 const Hospitals = () => {
     const [hospitals, setHospitals] = useState([]);
-    const currentUser = useSelector(state => state.user); // Ensure this path matches your Redux state
+    const currentUser = useSelector(state => state.user); 
     const [selectedHospitalId, setSelectedHospitalId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
