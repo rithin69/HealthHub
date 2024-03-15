@@ -44,7 +44,9 @@ export const createUserDocument = async (user, additionalData) => {
         email,
         password,
         createdAt: new Date(),
-        uid
+        uid,
+        PracticeRegistered:false,
+        Adminapproved:false
         
       });
     } catch (error) {
