@@ -50,6 +50,13 @@ const Admin = () => {
   const handleApprove = async (requestId) => {
     try {
       await updateDoc(doc(firestore, 'patient_practice_registration', requestId), { registrationRequest: 'Approved' });
+      const updatedRequests = registrationRequests.map(request => {
+        if (request.id === requestId) {
+          return { ...request, registrationRequest: 'Approved' };
+        }
+        return request;
+      });
+      setRegistrationRequests(updatedRequests);
       console.log('Request approved:', requestId);
     } catch (error) {
       console.error('Error approving request:', error);
@@ -59,6 +66,13 @@ const Admin = () => {
   const handleReject = async (requestId) => {
     try {
       await updateDoc(doc(firestore, 'patient_practice_registration', requestId), { registrationRequest: 'Rejected' });
+      const updatedRequests = registrationRequests.map(request => {
+        if (request.id === requestId) {
+          return { ...request, registrationRequest: 'Rejected' };
+        }
+        return request;
+      });
+      setRegistrationRequests(updatedRequests);
       console.log('Request rejected:', requestId);
     } catch (error) {
       console.error('Error rejecting request:', error);
