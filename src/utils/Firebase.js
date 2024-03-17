@@ -97,5 +97,26 @@ export const createHospitalDocuments = async (hospitalsArray) => {
   }
 };
 
+export const createAdmin = async (email, password) => {
+  try {
+    const adminRef = doc(collection(firestore, 'admin'));
+    const adminSnapshot = await getDoc(adminRef);
+    
+    if (adminSnapshot.exists()) {
+      console.log('Admin document already exists.');
+      return;
+    }
+    
+    await setDoc(adminRef, {
+      email: email,
+      password: password
+    });
+    console.log('Admin document created successfully.');
+  } catch (error) {
+    console.error('Error creating admin document: ', error);
+  }
+
+  createAdmin('admin@gmail.com', 'adminPassword@1');
+};
 
 
