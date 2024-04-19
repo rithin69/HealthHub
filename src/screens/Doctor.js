@@ -92,7 +92,7 @@ function DoctorDashboard() {
         const fetchPatients = async () => {
           try {
             const patientsQuery = query(
-              collection(firestore, 'patients'),
+              collection(firestore, 'patient'),
               where('doctorId', '==', user.uid)
             );
             const querySnapshot = await getDocs(patientsQuery);
@@ -161,7 +161,7 @@ function DoctorDashboard() {
     try {
       const patientId = patients.find((patient) => patient.fullName === medicalHistoryForm.patientName)?.id;
       if (patientId) {
-        const patientRef = doc(firestore, 'patients', patientId);
+        const patientRef = doc(firestore, 'patient', patientId);
         await updateDoc(patientRef, {
           medicalHistory: firebase.firestore.FieldValue.arrayUnion({
             condition: medicalHistoryForm.condition,
