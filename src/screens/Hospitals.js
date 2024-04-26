@@ -24,7 +24,9 @@ const Hospitals = () => {
 
     const [registrationRequest, setRegistrationRequest] = useState(null);
 
-    const [bookingConfirmed, setBookingConfirmed] = useState(false);
+    const [bookingConfirmed, setBookingConfirmed] = useState();
+
+    //const [blockappo,setblockappo]=useState(true);
 
 
     useEffect(() => {
@@ -64,8 +66,23 @@ const Hospitals = () => {
 
                         setRegistrationRequest("Pending");
                     }
+                    const bookingRef1 = collection(firestore, 'appointment_booking');
+                   // console.log(currentUser.uid);
+                    const bookingSnapshot = await getDocs(query(bookingRef1, where("patientId", "==", currentUser.uid)));
+                    const bookingExists = !bookingSnapshot.empty && bookingSnapshot.docs.some(doc => doc.data().bookingconfirmed);
+                    //console.log(bookingSnapshot.empty);
+                    //console.log(bookingSnapshot.docs.some(doc => doc.data().bookingconfirmed));
+                    //console.log(bookingExists)
+                    setBookingConfirmed(bookingExists);
+                    if (bookingExists) {
+                        const bookingData = bookingSnapshot.docs.find(doc => doc.data().bookingconfirmed).data();
+                        setSelectedService(bookingData.consultingService);
+                        setSelectedDate(new Date(bookingData.appointmentDate));
+                    }
+
 
                 }
+
             }
         };
 
@@ -85,6 +102,12 @@ const Hospitals = () => {
             fetchServices();
         }
     }, [isRegistered, selectedHospitalId]);
+
+    useEffect(() => {
+        console.log('isRegistered:', isRegistered);
+        console.log('registrationRequest:', registrationRequest);
+        console.log('bookingConfirmed:', bookingConfirmed);
+    }, [isRegistered, registrationRequest, bookingConfirmed]); 
 
     // Handling the click on the register button
     const handleRegisterClick = async (hospitalId) => {
@@ -125,41 +148,45 @@ const Hospitals = () => {
     const handleBookingConfirmation = async () => {
         const registrationRef = collection(firestore, 'patient_practice_registration');
         const querySnapshot = await getDocs(query(registrationRef, where("patientId", "==", currentUser.uid)));
-        
+
         // Ensure we have a registration record to work with
         if (!querySnapshot.empty) {
             const registrationDoc = querySnapshot.docs[0];
             const formattedDate = selectedDate.toISOString().split('T')[0]; // Format date as you like
-    
+
             // Create a new document in the 'appointment_booking' collection
             const bookingRef = collection(firestore, 'appointment_booking');
+
             await addDoc(bookingRef, {
                 appointmentDate: formattedDate,
                 consultingService: selectedService,
                 PracticeId: selectedHospitalId,
-                PatientPracticeregistrationId: registrationDoc.id, // Assuming you want the document ID of the registration
+                PatientPracticeregistrationId: registrationDoc.id,
+                bookingconfirmed: true,
+                patientId:currentUser.uid
             });
-    
+
             setBookingConfirmed(true);
+            // setblockappo(false);
             // Optionally, clear selectedService and selectedDate here or keep them for showing to the user
         }
     };
-    
+
 
     return (
         <div className="relative">
 
-{registrationRequest === 'Rejected' ? (
-            <h1 className="text-2xl font-semibold text-center mb-4 text-red-500">Sorry, your Registration Request got Rejected.</h1>
-        ) : registrationRequest === 'Approved' && !bookingConfirmed ? (
-            <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Admin has approved your Registration request. Please book an appointment.</h1>
-        ) : !isRegistered ? (
-            <h1 className="text-xl font-semibold text-center mb-4">Please Select a Hospital From The List of Hospitals</h1>
-        ) : bookingConfirmed ? (
-            <h1 className="text-2xl font-semibold text-center mb-4 text-green-600">Thank you for booking an appointment with us!</h1>
-        ) : (
-            <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Your Selected Hospital. Waiting for Admin's Approval...</h1>
-        )}
+            {registrationRequest === 'Rejected' ? (
+                <h1 className="text-2xl font-semibold text-center mb-4 text-red-500">Sorry, your Registration Request got Rejected.</h1>
+            ) : registrationRequest === 'Approved' && !bookingConfirmed ? (
+                <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Admin has approved your Registration request. Please book an appointment.</h1>
+            ) : !isRegistered ? (
+                <h1 className="text-xl font-semibold text-center mb-4">Please Select a Hospital From The List of Hospitals</h1>
+            ) : bookingConfirmed ? (
+                <h1 className="text-2xl font-semibold text-center mb-4 text-green-600">Thank you for booking an appointment with us!</h1>
+            ) : registrationRequest==="Pending"?(
+                <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Your Selected Hospital. Waiting for Admin's Approval...</h1>
+            ) : <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Your Selected Hospital. Waiting for Admin's Approval...</h1>}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 {hospitals.filter(hospital => !isRegistered || hospital.id === selectedHospitalId).map((hospital) => (
@@ -200,8 +227,12 @@ const Hospitals = () => {
                     </div>
                 </div>
             )}
+            
+            
+
             {isRegistered && registrationRequest === 'Approved' && !bookingConfirmed && (
                 <>
+                    
                     <div className="px-6 py-4">
                         <label htmlFor="service" className="block text-sm font-medium text-gray-700">Select Service</label>
                         <select id="service" name="service" className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value={selectedService} onChange={(e) => setSelectedService(e.target.value)}>
