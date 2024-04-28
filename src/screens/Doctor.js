@@ -56,6 +56,8 @@ firebase.initializeApp(firebaseConfig);
 
 function DoctorDashboard() {
   const [user, setUser] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [prescriptionForm, setPrescriptionForm] = useState({
     patientName: '',
     medication: '',
@@ -68,17 +70,70 @@ function DoctorDashboard() {
     notes: '',
   });
 
-  useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-    });
+  //useEffect(() => {
+   // const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+    //  if (user) {
+   //     setUser(user);
+   //   } else {
+   //     setUser(null);
+   //   }
+   // });
 
-    return unsubscribe;
-  }, []);
+   // return unsubscribe;
+ // }, []);
+
+ 
+ useEffect(() => {
+  const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      setUser(user);
+      try {
+        const appointmentsQuery = query(
+          collection(firestore, 'appointment_booking'),
+          where('doctorId', '==', user.uid),
+          where('bookingconfirmed', '==', true)
+        );
+        const appointmentsSnapshot = await getDocs(appointmentsQuery);
+        const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({ 
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAppointments(appointmentsData);
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      }
+    } else {
+      setUser(null);
+      setAppointments([]);
+      setPatients([]);
+    }
+  });
+
+  return unsubscribe;
+}, []);
+
+useEffect(() => {
+  const fetchPatients = async () => {
+    try {
+      const patientsQuery = query(
+        collection(firestore, 'patient'),
+        where('doctorId', '==', user.uid)
+      );
+      const patientsSnapshot = await getDocs(patientsQuery);
+      const patientsData = patientsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPatients(patientsData);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+    }
+  };
+
+  if (user) {
+    fetchPatients();
+  }
+}, [user]);
 
   const handlePrescriptionFormChange = (e) => {
     setPrescriptionForm({
@@ -180,8 +235,34 @@ function DoctorDashboard() {
         pauseOnHover
       />
 
-      <main className="flex-grow p-6">
+<main className="flex-grow p-6">
         <div className="flex flex-col w-full">
+          <div className="flex flex-col bg-white p-4 rounded-lg shadow mt-4">
+            <h3 className="text-lg font-bold mb-2">Upcoming Appointments</h3>
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-4 whitespace-nowrap">Patient Name</th>
+                    <th className="px-6 py-4 whitespace-nowrap">Appointment Date</th>
+                    <th className="px-6 py-4 whitespace-nowrap">Consulting Service</th>
+                    <th className="px-6 py-4 whitespace-nowrap">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appointments.map((appointment) => (
+                    <tr key={appointment.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointment.patientName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointment.appointmentDate}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointment.consultingService}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointment.bookingconfirmed ? 'Confirmed' : 'Not Confirmed'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div className="flex flex-col bg-white p-4 rounded-lg shadow mt-4">
             <h3 className="text-lg font-bold mb-2">Generate Prescription</h3>
             <form onSubmit={handlePrescriptionSubmit} className="space-y-4">
@@ -312,7 +393,6 @@ function DoctorDashboard() {
     </div>
   );
 }
-
 
 export default DoctorDashboard;
  
