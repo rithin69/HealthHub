@@ -1,4 +1,3 @@
-// Admin.js
 import React, { useState } from 'react';
 import RegistrationRequests from '../Components/RegistrationRequests';
 import AddDoctorModal from '../Components/AddDoctorModal';
@@ -6,44 +5,40 @@ import AddPracticeModal from '../Components/AddPracticeModal';
 import AddPractitionerModal from '../Components/AddPractitionerModal';
 
 const Admin = () => {
-  const [selectedTab, setSelectedTab] = useState('registration');
+  const [activeTab, setActiveTab] = useState('registrationRequests');
   const [showDoctorModal, setShowDoctorModal] = useState(false);
-  const [showPracticeModal, setShowPracticeModal] = useState(false);
   const [showPractitionerModal, setShowPractitionerModal] = useState(false);
+  const [showPracticeModal, setShowPracticeModal] = useState(false);
 
   const handleTabChange = (tab) => {
-    setSelectedTab(tab);
+    setActiveTab(tab);
   };
 
   return (
-    <div className="w-full mx-auto px-4">
-      <div className="flex justify-between mb-8">
-        <button className={`flex-1 py-2 bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold`} onClick={() => handleTabChange('registration')}>Registration Requests</button>
-        <button className={`flex-1 py-2 bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold`} onClick={() => handleTabChange('add')}>Add Medical Member/Practice</button>
-      </div>
-      
-      {selectedTab === 'registration' && (
-        <div className="w-full">
-          <RegistrationRequests />
-        </div>
-      )}
-      
-      {selectedTab === 'add' && (
-        <div className="w-full">
-          <h3 className="text-xl font-semibold mb-4">Add Doctor/Practice/Practitioner</h3>
-          <div className="flex flex-col space-y-4">
-            <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded focus:outline-none" onClick={() => setShowDoctorModal(true)}>Add Doctor</button>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded focus:outline-none" onClick={() => setShowPracticeModal(true)}>Add Practice</button>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded focus:outline-none" onClick={() => setShowPractitionerModal(true)}>Add Practitioner</button>
+    <div className="bg-gray-100 min-h-screen">
+      <div className="container mx-auto py-8 px-4">
+        <h2 className="text-3xl font-bold text-center mb-8">Admin Dashboard</h2>
+        <div className="mb-8">
+          <div className="flex justify-center space-x-4">
+            <button onClick={() => handleTabChange('registrationRequests')} className={`${activeTab === 'registrationRequests' ? 'bg-blue-500' : 'bg-blue-300'} hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none`}>Registration Requests</button>
+            <button onClick={() => handleTabChange('addNew')} className={`${activeTab === 'addNew' ? 'bg-blue-500' : 'bg-blue-300'} hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none`}>Add New</button>
           </div>
         </div>
-      )}
-  
-      <AddDoctorModal showModal={showDoctorModal} setShowModal={setShowDoctorModal} />
-      <AddPracticeModal showModal={showPracticeModal} setShowModal={setShowPracticeModal} />
-      <AddPractitionerModal showModal={showPractitionerModal} setShowModal={setShowPractitionerModal} />
+        {activeTab === 'registrationRequests' && <RegistrationRequests />}
+        {activeTab === 'addNew' && (
+          <div>
+            <button onClick={() => setShowDoctorModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none">Add Doctor</button>
+            <button onClick={() => setShowPractitionerModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none">Add Practitioner</button>
+            <button onClick={() => setShowPracticeModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none">Add Practice</button>
+          </div>
+        )}
+        {/* Modals */}
+        {showDoctorModal && <AddDoctorModal onClose={() => setShowDoctorModal(false)} />}
+        {showPractitionerModal && <AddPractitionerModal onClose={() => setShowPractitionerModal(false)} />}
+        {showPracticeModal && <AddPracticeModal onClose={() => setShowPracticeModal(false)} />}
+      </div>
     </div>
-  );  
+  );   
 };
 
 export default Admin;
