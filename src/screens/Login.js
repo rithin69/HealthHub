@@ -269,10 +269,10 @@ const Login = () => {
 
           {isSignInForm && (
             <div className="py-12">
-              <h1 className="mb-2 flex text-black-400">
+              <h1 className="mb-2 flex text-black">
                 {lang[langKey].newPatient}{" "}
                 <p
-                  className="ml-1 cursor-pointer select-none text-white hover:underline"
+                  className="ml-1 cursor-pointer select-none text-[#0000FF] hover:underline"
                   onClick={toggleSignUpForm}
                 >
                   {lang[langKey].signUpNow}
