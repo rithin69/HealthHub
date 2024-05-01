@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Header from "../Components/Header";
 import { BG_URL } from "../utils/Constant";
 import { checkValidData } from "../utils/Validate";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../utils/Firebase";
 import { Eye, EyeOff } from "lucide-react";
 import lang from "../utils/LanguageConstants";
@@ -11,6 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 import { createUserDocument } from "../utils/Firebase"
+import { getFirestore, doc, updateDoc } from "firebase/firestore"; // Importing getFirestore, doc, and updateDoc
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedRole, setSelectedRole] = useState('');
+  const [selectedGender, setSelectedGender] = useState('');
+  const [newPassword, setNewPassword] = useState(''); // Adding state for newPassword
   const langKey = useSelector((store) => store.config.lang);
 
   const [formData, setFormData] = useState({
@@ -37,6 +40,10 @@ const Login = () => {
     // console.log(formData)
   };
 
+  const handleGenderChange = (e) => {
+    setSelectedGender(e.target.value);
+  };
+
   const handleButtonClick = () => {
     const message = checkValidData(formData.email, formData.password);
     setErrorMessage(message);
@@ -50,7 +57,11 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          createUserDocument(user, {...formData});
+          createUserDocument(user, {
+            ...formData,
+            gender: selectedGender
+          });
+          setIsSignInForm(true);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -65,6 +76,7 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
+          setNewPassword(formData.password);
           switch (selectedRole) {
             case 'patient':
               navigate('/patientdashboard');
@@ -81,6 +93,18 @@ const Login = () => {
             default:
               navigate('/');
           }
+          // Update password in Firestore
+          const db = getFirestore();
+          const userDocRef = doc(db, "patient", user.uid);
+          updateDoc(userDocRef, {
+            password: formData.password
+          }).then(() => {
+            console.log("Password updated in Firestore");
+            console.log("New password: " + newPassword);
+          }).catch((error) => {
+            console.error("Error updating password in Firestore: ", error);
+            setErrorMessage("Error updating password. Please try again later.");
+          });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -97,6 +121,16 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleForgotPassword = () => {
+    sendPasswordResetEmail(auth, formData.email)
+      .then(() => {
+        setErrorMessage("Password reset email sent. Check your inbox.");
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+      });
   };
 
   return (
@@ -145,6 +179,19 @@ const Login = () => {
                   name="address"
                   onChange={handleInputChange}
                 />
+                <select
+                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  placeholder={lang[langKey].gender}
+                  defaultValue="Gender"
+                  value={selectedGender}
+                  onChange={handleGenderChange} // Handle gender change
+                >
+                  <option value="" disabled>Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
               </>
             )}
             <input
@@ -207,13 +254,11 @@ const Login = () => {
             )}
           </button>
           <div className="my-2 flex justify-between">
-            <p className="text-gray-400">
-              <input type="checkbox" />
-              {lang[langKey].remember}
-            </p>
-            <p className="cursor-pointer text-gray-400 hover:underline">
-              {lang[langKey].needHelp}
-            </p>
+            <div className="mb-3 w-full my-3">
+              <a className="text-gray-400 hover:underline cursor-pointer" onClick={handleForgotPassword}>
+                {lang[langKey].forgotPassword}
+              </a>
+            </div>
           </div>
 
           {isSignInForm && (

@@ -33,6 +33,7 @@ export const createUserDocument = async (user, additionalData) => {
     const {fullName,
       dob,
       address,
+      gender,
       email,
       password} = additionalData;
     
@@ -41,6 +42,7 @@ export const createUserDocument = async (user, additionalData) => {
         fullName: fullName,
         dob,
         address,
+        gender,
         email,
         password,
         createdAt: new Date(),

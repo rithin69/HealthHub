@@ -15,14 +15,14 @@ const lang = {
       signUpNow: "Sign Up Now.",
       signInNow: "Sign In Now.",
       alreadyUser: "Already a user?",
-      dob: "Date Of Birth",
+      dob: "Date of Birth",
       address:"Address",
       patient:"Patient",
       practitioner:"Practitioner",
       doctor:"Doctor",
-      admin:"Admin"
-
-      
+      admin:"Admin",
+      gender:"Gender", 
+      forgotPassword:"Forgot Password?"
     },
     hi: {
       search: "खोजे",
