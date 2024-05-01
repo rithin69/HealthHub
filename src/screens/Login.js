@@ -31,6 +31,8 @@ const Login = () => {
     password: ""
   });
 
+  const today = new Date();
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -146,9 +148,9 @@ const Login = () => {
       <div className="form relative flex h-screen items-center justify-center">
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="w-full rounded-lg bg-black bg-opacity-80 p-12 text-white md:w-3/12 z-40"
+          className="w-full rounded-lg bg-[#DBE9FA] bg-opacity-80 p-12 text-white md:w-3/12 z-40"
         >
-          <h2 className="text-3xl font-bold text-white">
+          <h2 className="text-3xl font-bold text-black">
             {isSignInForm ? (
               <span>{lang[langKey].signIn}</span>
             ) : (
@@ -171,6 +173,10 @@ const Login = () => {
                   className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
                   dateFormat="dd/MM/yyyy"
                   placeholderText={lang[langKey].dob}
+                  maxDate={today}
+                  showYearDropdown // Enable year dropdown
+                  showMonthDropdown // Enable month dropdown
+                  dropdownMode="select"
                 />
                 <input
                   type="text"
@@ -244,7 +250,7 @@ const Login = () => {
           </div>
           <p className="text-red-500">{errorMessage}</p>
           <button
-            className="mt-5 w-full rounded-md bg-red-600 py-3 text-white"
+            className="mt-5 w-full rounded-md bg-blue-600 py-3 text-white"
             onClick={handleButtonClick}
           >
             {isSignInForm ? (
@@ -255,7 +261,7 @@ const Login = () => {
           </button>
           <div className="my-2 flex justify-between">
             <div className="mb-3 w-full my-3">
-              <a className="text-gray-400 hover:underline cursor-pointer" onClick={handleForgotPassword}>
+              <a className="text-[#0000FF] hover:underline cursor-pointer" onClick={handleForgotPassword}>
                 {lang[langKey].forgotPassword}
               </a>
             </div>
@@ -263,7 +269,7 @@ const Login = () => {
 
           {isSignInForm && (
             <div className="py-12">
-              <h1 className="mb-2 flex text-gray-400">
+              <h1 className="mb-2 flex text-black-400">
                 {lang[langKey].newPatient}{" "}
                 <p
                   className="ml-1 cursor-pointer select-none text-white hover:underline"
@@ -276,10 +282,10 @@ const Login = () => {
           )}
           {!isSignInForm && (
             <div className="pb-12">
-              <h1 className="mb-2 flex text-gray-400">
+              <h1 className="mb-2 flex text-[#000000]">
                 {lang[langKey].alreadyUser}{" "}
                 <p
-                  className="ml-1 cursor-pointer select-none text-white hover:underline"
+                  className="ml-1 cursor-pointer select-none text-[#0000FF] hover:underline"
                   onClick={toggleSignUpForm}
                 >
                   {lang[langKey].signInNow}
