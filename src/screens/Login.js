@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
 import { BG_URL } from "../utils/Constant";
 import { checkValidData } from "../utils/Validate";
@@ -22,6 +22,7 @@ const Login = () => {
   const [selectedGender, setSelectedGender] = useState('');
   const [newPassword, setNewPassword] = useState(''); 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [formFilled, setFormFilled] = useState(false);
   const langKey = useSelector((store) => store.config.lang);
 
   const [formData, setFormData] = useState({
@@ -33,6 +34,25 @@ const Login = () => {
   });
 
   const today = new Date();
+
+  useEffect(() => {
+    const isFormValid = () => {
+      if (isSignInForm) {
+        return formData.email && formData.password && agreeToTerms;
+      } else {
+        return (
+          formData.fullName &&
+          formData.dob &&
+          formData.address &&
+          formData.email &&
+          formData.password &&
+          agreeToTerms
+        );
+      }
+    };
+
+    setFormFilled(isFormValid());
+  }, [formData, agreeToTerms, isSignInForm]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -219,7 +239,7 @@ const Login = () => {
               name="email"
               onChange={handleInputChange}
             />
-            <div className="relative flex items-center justify-end">
+            <div className="relative flex items-center justify-end padding-bottom-10px">
               <input
                 type={showPassword ? "text" : "password"}
                 className="relative w-full select-none rounded-md bg-[#DBE9FA] p-3 text-black"
@@ -246,7 +266,7 @@ const Login = () => {
             {termsAndConditions && (
               <div className="relative flex items-center text-black style='width: 275px !important;'">
                 <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
-                <span>I agree to the <a href="#">terms and conditions</a></span>
+                <span>I agree to the website <a href="#">terms and conditions</a></span>
               </div>            
             )}
             {/* {isSignInForm && (
@@ -268,8 +288,11 @@ const Login = () => {
           </div>
           <p className="text-red-500">{errorMessage}</p>
           <button
-            className="mt-5 w-full rounded-md bg-blue-600 py-3 text-white"
+            className={`mt-5 w-full rounded-md py-3 text-white ${
+              formFilled ? 'bg-blue-600' : 'bg-gray-400 cursor-not-allowed'
+            }`}
             onClick={handleButtonClick}
+            disabled={!formFilled}
           >
             {isSignInForm ? (
               <span>{lang[langKey].signIn}</span>
