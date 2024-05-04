@@ -263,6 +263,22 @@ const Login = () => {
                 />
               )}
             </div>
+            {isSignInForm && (
+              <div className="mb-3 w-full my-3">
+                <select
+                  className="w-full rounded-md bg-[#DBE9FA] p-3 text-white"
+                  defaultValue=""
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  <option value="" disabled>Select your role</option>
+                  <option value="patient">{lang[langKey].patient}</option>
+                  <option value="practitioner">{lang[langKey].practitioner}</option>
+                  <option value="doctor">{lang[langKey].doctor}</option>
+                  <option value="admin">{lang[langKey].admin}</option>
+                </select>
+              </div>
+            )}
             {termsAndConditions && (
               <div className="relative flex items-center text-black col-span-2">
                 <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
