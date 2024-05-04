@@ -180,7 +180,7 @@ const Login = () => {
       <div className="form relative flex h-screen items-center justify-center">
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="w-full rounded-lg bg-[#DBE9FA] bg-opacity-80 p-12 text-white md:w-3/12 z-40"
+          className="w-full rounded-lg bg-[#DBE9FA] bg-opacity-80 p-12 text-white md:w-7/12 lg:w-5/12 xl:w-4/12 z-40"
         >
           <h2 className="text-3xl font-bold text-black">
             {isSignInForm ? (
@@ -189,12 +189,12 @@ const Login = () => {
               <span>{lang[langKey].signUp}</span>
             )}
           </h2>
-          <div className=" my-6">
+          <div className=" my-6 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
             {!isSignInForm && (
               <>
                 <input
                   type="text"
-                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].fullName}
                   name="fullName"
                   onChange={handleInputChange}
@@ -202,7 +202,7 @@ const Login = () => {
                 <DatePicker
                   selected={formData.dob ? new Date(formData.dob) : null}
                   onChange={(date) => setFormData({ ...formData, dob: date })}
-                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   dateFormat="dd/MM/yyyy"
                   placeholderText={lang[langKey].dob}
                   maxDate={today}
@@ -212,13 +212,13 @@ const Login = () => {
                 />
                 <input
                   type="text"
-                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].address}
                   name="address"
                   onChange={handleInputChange}
                 />
                 <select
-                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].gender}
                   defaultValue="Gender"
                   value={selectedGender}
@@ -234,12 +234,12 @@ const Login = () => {
             )}
             <input
               type="text"
-              className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
+              className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black col-span-2"
               placeholder={lang[langKey].email}
               name="email"
               onChange={handleInputChange}
             />
-            <div className="relative flex items-center justify-end padding-bottom-10px">
+            <div className="relative flex items-center justify-end padding-bottom-10px col-span-2">
               <input
                 type={showPassword ? "text" : "password"}
                 className="relative w-full select-none rounded-md bg-[#DBE9FA] p-3 text-black"
@@ -264,27 +264,11 @@ const Login = () => {
               )}
             </div>
             {termsAndConditions && (
-              <div className="relative flex items-center text-black style='width: 275px !important;'">
+              <div className="relative flex items-center text-black col-span-2">
                 <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
                 <span>I agree to the website <a href="#">terms and conditions</a></span>
               </div>            
             )}
-            {/* {isSignInForm && (
-              <div className="mb-3 w-full my-3">
-                <select
-                  className="w-full rounded-md bg-[#DBE9FA] p-3 text-white"
-                  defaultValue=""
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                >
-                  <option value="" disabled>Select your role</option>
-                  <option value="patient">{lang[langKey].patient}</option>
-                  <option value="practitioner">{lang[langKey].practitioner}</option>
-                  <option value="doctor">{lang[langKey].doctor}</option>
-                  <option value="admin">{lang[langKey].admin}</option>
-                </select>
-              </div>
-            )} */}
           </div>
           <p className="text-red-500">{errorMessage}</p>
           <button
@@ -307,9 +291,9 @@ const Login = () => {
               </a>
             </div>
           </div>
-
+  
           {isSignInForm && (
-            <div className="py-12">
+            <div className="my-2 flex justify-between">
               <h1 className="mb-2 flex text-black">
                 {lang[langKey].newPatient}{" "}
                 <p
@@ -322,7 +306,7 @@ const Login = () => {
             </div>
           )}
           {!isSignInForm && (
-            <div className="pb-12">
+            <div className="pb-6">
               <h1 className="mb-2 flex text-[#000000]">
                 {lang[langKey].alreadyUser}{" "}
                 <p
@@ -337,7 +321,7 @@ const Login = () => {
         </form>
       </div>
     </div>
-  );
+  );  
 };
 
 export default Login;
