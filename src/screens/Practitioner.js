@@ -47,7 +47,7 @@ const PractitionerComponent = () => {
             console.error('Error accepting appointment:', error);
         }
     };
-
+//reject
     const handleReject = async (id) => {
         try {
             await updateDoc(doc(firestore, 'appointment_booking', id), { bookingconfirmed: 'Rejected' });
