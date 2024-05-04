@@ -25,8 +25,8 @@ function Patient() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 text-center my-8 ">
                 HEALTHUB
             </h1>
-            <button onClick={handleOpenModal}>Find a Pharmacy</button>
-            <PharmacySearchModal visible={isModalVisible} onClose={handleCloseModal} />
+            {/* <button onClick={handleOpenModal}>Find a Pharmacy</button> */}
+            {/* <PharmacySearchModal visible={isModalVisible} onClose={handleCloseModal} /> */}
             <Hospitals></Hospitals>
         </>
     );

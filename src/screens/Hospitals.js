@@ -5,69 +5,62 @@ import { useSelector } from 'react-redux';
 import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where } from 'firebase/firestore';
 import { firestore } from '../utils/Firebase';
 import AppointmentList from '../Components/AppointmentList';
+import ProfileModal from '../Components/ProfileModal';
+
+
+
+
 
 const Hospitals = () => {
+    const [profileModalOpen, setProfileModalOpen] = useState(false);
+    
     const [appointments, setAppointments] = useState([]);
+
     const [hospitals, setHospitals] = useState([]);
+
     const currentUser = useSelector(state => state.user);
+
     const [selectedHospitalId, setSelectedHospitalId] = useState();
+
     const [isRegistered, setIsRegistered] = useState();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     const [selectedDate, setSelectedDate] = useState(new Date());
+
     const [selectedService, setSelectedService] = useState('');
+
     const [services, setServices] = useState([]);
+
     const [registrationRequest, setRegistrationRequest] = useState(null);
+
     const [bookingConfirmed, setBookingConfirmed] = useState(false);
+
     const [bookingButtonDisabled, setBookingButtonDisabled] = useState(bookingConfirmed === undefined || !bookingConfirmed);
+
     const [showBookingForm, setShowBookingForm] = useState(true);
-    const [showHamburgerMenu, setShowHamburgerMenu] = useState(false);
-    const [isEditingProfile, setIsEditingProfile] = useState(false);
-    const [profileDetails, setProfileDetails] = useState({
-        gender: '',
-        patientName: '',
-        dob: new Date(), // Default to today's date
-        address: '',
-        email: ''
-    });
+
     const bookingButtonRef = React.createRef();
 
-    const closeModal = () => setIsModalOpen(false);
+    const [isModalOpen1, setIsModalOpen1] = useState(false);
 
-    const convertFirestoreTimestampToDate = (timestamp) => {
-        return timestamp ? new Date(timestamp.seconds * 1000) : new Date();
+    const toggleModal = () => {
+        console.log("Toggling modal");
+        setIsModalOpen1(!isModalOpen1);
     };
 
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            if (currentUser?.uid) {
-                const userDocRef = doc(firestore, 'patient', currentUser.uid);
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    const dobDate = userData.dob ? convertFirestoreTimestampToDate(userData.dob) : new Date();
-                    setProfileDetails({ ...userData, dob: dobDate });
-                }
-            }
-        };
+    // const [calser,setcalser]=useState(false);
 
-        fetchUserProfile();
-    }, [currentUser?.uid]);
+    // console.log(bookingButtonDisabled)
 
-    const toggleHamburgerMenu = () => {
-        setShowHamburgerMenu(!showHamburgerMenu);
+    const toggleProfileModal = () => {
+        setProfileModalOpen(!profileModalOpen);
     };
 
-    const saveProfile = async () => {
-        if (currentUser?.uid && isEditingProfile) {
-            const userDocRef = doc(firestore, 'patient', currentUser.uid);
-            await updateDoc(userDocRef, {...profileDetails, dob: profileDetails.dob});
-            setIsEditingProfile(false);
-            setShowHamburgerMenu(false);
-        }
-    };
 
     useEffect(() => {
         const fetchHospitals = async () => {
+            localStorage.setItem('userUID', currentUser.uid || "sadasdasd");
             const querySnapshot = await getDocs(collection(firestore, 'practice'));
             const fetchedHospitals = querySnapshot.docs.map(doc => ({
                 id: doc.id,
@@ -75,7 +68,6 @@ const Hospitals = () => {
             }));
             setHospitals(fetchedHospitals);
         };
-
         fetchHospitals();
     }, []);
 
@@ -94,7 +86,10 @@ const Hospitals = () => {
 
                     if (!querySnapshot.empty) {
                         const registrationData = querySnapshot.docs[0].data();
-                        setRegistrationRequest(registrationData.registrationRequest);
+                        let registrationRequest = registrationData.registrationRequest;
+                        setRegistrationRequest(registrationRequest);
+
+                        //setBookingButtonDisabled(registrationRequest === "Pending");
                     } else {
                         setRegistrationRequest("Pending");
                     }
@@ -114,9 +109,44 @@ const Hospitals = () => {
         fetchRegistrationStatus();
     }, [currentUser?.uid, bookingConfirmed]);
 
+    useEffect(() => {
+        if (isRegistered && selectedHospitalId) {
+            const hospitalDocRef = doc(firestore, 'practice', selectedHospitalId);
+            const fetchServices = async () => {
+                const hospitalDocSnap = await getDoc(hospitalDocRef);
+                if (hospitalDocSnap.exists()) {
+                    setServices(hospitalDocSnap.data().services);
+                }
+                console.log(selectedService);
+            };
+            fetchServices();
+
+            // Update bookingButtonDisabled state when bookingConfirmed changes
+            setBookingButtonDisabled(registrationRequest === "Pending" || !bookingConfirmed);
+        }
+    }, [isRegistered, selectedHospitalId, bookingConfirmed, registrationRequest]);
+
+
+    useEffect(() => {
+        if (bookingConfirmed) {
+            const fetchAppointments = async () => {
+                const bookingRef = collection(firestore, 'appointment_booking');
+                const bookingSnapshot = await getDocs(query(bookingRef, where("patientId", "==", currentUser.uid)));
+                const appointmentsData = bookingSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setAppointments(appointmentsData);
+            };
+
+            fetchAppointments();
+        }
+    }, [bookingConfirmed,showBookingForm, currentUser?.uid]);
+
     const handleRegisterClick = async (hospitalId) => {
         if (!currentUser?.uid) return;
 
+        // Assuming `currentUser.uid` is correctly fetched from your store
         const userDocRef = doc(firestore, 'patient', currentUser.uid);
         const docSnap = await getDoc(userDocRef);
 
@@ -141,19 +171,26 @@ const Hospitals = () => {
 
         setSelectedHospitalId(hospitalId);
         setIsRegistered(true);
+
+        // Show the modal
         setIsModalOpen(true);
-        setShowBookingForm(true);
+        setShowBookingForm(true)
     };
+
+    const closeModal = () => setIsModalOpen(false);
 
     const handleBookingConfirmation = async () => {
         const registrationRef = collection(firestore, 'patient_practice_registration');
         const querySnapshot = await getDocs(query(registrationRef, where("patientId", "==", currentUser.uid)));
 
+        // Ensure we have a registration record to work with
         if (!querySnapshot.empty) {
             const registrationDoc = querySnapshot.docs[0];
-            const formattedDate = selectedDate.toISOString().split('T')[0];
+            const formattedDate = selectedDate.toISOString().split('T')[0]; // Format date as you like
 
+            // Create a new document in the 'appointment_booking' collection
             const bookingRef = collection(firestore, 'appointment_booking');
+
             await addDoc(bookingRef, {
                 appointmentDate: formattedDate,
                 consultingService: selectedService,
@@ -165,47 +202,47 @@ const Hospitals = () => {
 
             setBookingConfirmed(true);
             setShowBookingForm(prevState => !prevState);
+            // setcalser(!calser);
+            // setblockappo(false);
+            // Optionally, clear selectedService and selectedDate here or keep them for showing to the user
         }
     };
 
     const handleBookingConfirmation1 = () => {
-        setShowBookingForm(prevState => !prevState);
+        //console.log('Current state of showBookingForm:', showBookingForm); // Debug log to check the current state
+        setShowBookingForm(prevState => !prevState); // Toggle the visibility based on previous state
     };
+
+    // useEffect(() => {
+    //     console.log('showBookingForm updated:', showBookingForm);
+    //     console.log(isRegistered)
+    //     console.log(registrationRequest)
+    //     // === 'Approved' && 
+    //     console.log(bookingConfirmed)
+
+    //     // Additional logging to check updates
+    // }, [showBookingForm, isRegistered, registrationRequest, bookingConfirmed]); // Dependency array to watch changes in showBookingForm
+
+
+
+
 
     return (
         <div className="relative">
-            <button onClick={toggleHamburgerMenu} className="hamburger-button">Menu</button>
+            <div className="flex justify-end">
+    <button
+        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out"
+        onClick={toggleProfileModal}
+    >
+        ☰ Edit Profile
+    </button>
+</div>
+            
+            {/* <button onClick={toggleProfileModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out">Edit Profile</button> */}
+            <ProfileModal isOpen={profileModalOpen} closeModal={toggleProfileModal} />
 
-            {showHamburgerMenu && (
-                <div className="menu">
-                    <button onClick={() => setIsEditingProfile(!isEditingProfile)}>
-                        {isEditingProfile ? 'View Profile' : 'Edit Profile'}
-                    </button>
-                </div>
-            )}
 
-            {isEditingProfile ? (
-                <div className="profile-form">
-                    <input type="text" value={profileDetails.patientName} onChange={e => setProfileDetails({...profileDetails, patientName: e.target.value})} />
-                    <input type="email" value={profileDetails.email} onChange={e => setProfileDetails({...profileDetails, email: e.target.value})} />
-                    <input type="text" value={profileDetails.address} onChange={e => setProfileDetails({...profileDetails, address: e.target.value})} />
-                    <DatePicker selected={profileDetails.dob} onChange={date => setProfileDetails({...profileDetails, dob: date})} />
-                    <select value={profileDetails.gender} onChange={e => setProfileDetails({...profileDetails, gender: e.target.value})}>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    <button onClick={saveProfile}>Save Changes</button>
-                </div>
-            ) : (
-                <div className="profile-view">
-                    <p>Name: {profileDetails.patientName}</p>
-                    <p>Email: {profileDetails.email}</p>
-                    <p>Address: {profileDetails.address}</p>
-                    <p>Date of Birth: {profileDetails.dob.toLocaleDateString()}</p>
-                    <p>Gender: {profileDetails.gender}</p>
-                </div>
-            )}
+            
 
             {registrationRequest === 'Rejected' ? (
                 <h1 className="text-2xl font-semibold text-center mb-4 text-red-500">Sorry, your Registration Request got Rejected.</h1>
@@ -215,12 +252,9 @@ const Hospitals = () => {
                 <h1 className="text-xl font-semibold text-center mb-4">Please Select a Hospital From The List of Hospitals</h1>
             ) : bookingConfirmed ? (
                 <h1 className="text-2xl font-semibold text-center mb-4 text-green-600">Thank you for booking an appointment with us!</h1>
-                                
             ) : registrationRequest === "Pending" ? (
                 <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Your Selected Hospital. Waiting for Admin's Approval...</h1>
-            ) : (
-                <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Your Selected Hospital. Waiting for Admin's Approval...</h1>
-            )}
+            ) : <h1 className="text-2xl font-semibold text-center mb-4 text-blue-600">Your Selected Hospital. Waiting for Admin's Approval...</h1>}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 {hospitals.filter(hospital => !isRegistered || hospital.id === selectedHospitalId).map((hospital) => (
@@ -274,8 +308,12 @@ const Hospitals = () => {
                 </div>
             )}
 
-            {isRegistered && registrationRequest === 'Approved' && (
+            {isRegistered && registrationRequest === 'Approved' &&  (
                 <>
+
+
+
+
                     {showBookingForm && (
                         <>
                             <div className="px-6 py-4">
@@ -298,10 +336,13 @@ const Hospitals = () => {
                         </>
                     )}
                     <AppointmentList appointments={appointments} />
+
                 </>
+                
             )}
         </div>
     );
 };
 
-export default Hospitals;
+
+export default Hospitals; 
