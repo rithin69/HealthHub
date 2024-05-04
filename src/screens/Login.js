@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 import { createUserDocument } from "../utils/Firebase"
-import { getFirestore, doc, updateDoc } from "firebase/firestore"; // Importing getFirestore, doc, and updateDoc
+import { getFirestore, doc, updateDoc } from "firebase/firestore"; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,7 +20,8 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedGender, setSelectedGender] = useState('');
-  const [newPassword, setNewPassword] = useState(''); // Adding state for newPassword
+  const [newPassword, setNewPassword] = useState(''); 
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const langKey = useSelector((store) => store.config.lang);
 
   const [formData, setFormData] = useState({
@@ -49,7 +50,7 @@ const Login = () => {
   const handleButtonClick = () => {
     const message = checkValidData(formData.email, formData.password);
     setErrorMessage(message);
-    if (message) return;
+    if (message || !agreeToTerms) return;
 
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
@@ -135,12 +136,23 @@ const Login = () => {
       });
   };
 
+  const handleToggleTerms = () => {
+    setAgreeToTerms(!agreeToTerms);
+  };
+
+  const termsAndConditions = (
+    <div className="relative flex items-center text-black">
+      <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
+      <span>I agree to the <a href="#">terms and conditions</a></span>
+    </div>
+  );
+
   return (
     <div className="">
       <Header />
       <div className="absolute">
         <img
-          className=" h-screen object-cover brightness-75 md:w-screen"
+          className="h-screen object-cover brightness-75 md:w-screen"
           src={BG_URL}
           alt="bgImg"
         />
@@ -162,7 +174,7 @@ const Login = () => {
               <>
                 <input
                   type="text"
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].fullName}
                   name="fullName"
                   onChange={handleInputChange}
@@ -170,27 +182,27 @@ const Login = () => {
                 <DatePicker
                   selected={formData.dob ? new Date(formData.dob) : null}
                   onChange={(date) => setFormData({ ...formData, dob: date })}
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
                   dateFormat="dd/MM/yyyy"
                   placeholderText={lang[langKey].dob}
                   maxDate={today}
-                  showYearDropdown // Enable year dropdown
-                  showMonthDropdown // Enable month dropdown
+                  showYearDropdown 
+                  showMonthDropdown 
                   dropdownMode="select"
                 />
                 <input
                   type="text"
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].address}
                   name="address"
                   onChange={handleInputChange}
                 />
                 <select
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].gender}
                   defaultValue="Gender"
                   value={selectedGender}
-                  onChange={handleGenderChange} // Handle gender change
+                  onChange={handleGenderChange} 
                 >
                   <option value="" disabled>Gender</option>
                   <option value="male">Male</option>
@@ -202,7 +214,7 @@ const Login = () => {
             )}
             <input
               type="text"
-              className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+              className="mb-3 w-full rounded-md bg-[#DBE9FA] p-3 text-black"
               placeholder={lang[langKey].email}
               name="email"
               onChange={handleInputChange}
@@ -210,7 +222,7 @@ const Login = () => {
             <div className="relative flex items-center justify-end">
               <input
                 type={showPassword ? "text" : "password"}
-                className="relative w-full select-none rounded-md bg-zinc-800 p-3 text-white"
+                className="relative w-full select-none rounded-md bg-[#DBE9FA] p-3 text-black"
                 placeholder={isSignInForm ? lang[langKey].password : lang[langKey].createPwd}
                 name="password"
                 onChange={handleInputChange}
@@ -231,10 +243,16 @@ const Login = () => {
                 />
               )}
             </div>
-            {isSignInForm && (
+            {termsAndConditions && (
+              <div className="relative flex items-center text-black style='width: 275px !important;'">
+                <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
+                <span>I agree to the <a href="#">terms and conditions</a></span>
+              </div>            
+            )}
+            {/* {isSignInForm && (
               <div className="mb-3 w-full my-3">
                 <select
-                  className="w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="w-full rounded-md bg-[#DBE9FA] p-3 text-white"
                   defaultValue=""
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
@@ -246,7 +264,7 @@ const Login = () => {
                   <option value="admin">{lang[langKey].admin}</option>
                 </select>
               </div>
-            )}
+            )} */}
           </div>
           <p className="text-red-500">{errorMessage}</p>
           <button
