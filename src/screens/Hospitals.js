@@ -57,7 +57,8 @@ const Hospitals = () => {
         setProfileModalOpen(!profileModalOpen);
     };
 
-
+    
+    
     useEffect(() => {
         const fetchHospitals = async () => {
             localStorage.setItem('userUID', currentUser.uid || "sadasdasd");
@@ -191,13 +192,32 @@ const Hospitals = () => {
             // Create a new document in the 'appointment_booking' collection
             const bookingRef = collection(firestore, 'appointment_booking');
 
+            const registrationRef1 = collection(firestore, 'patient');
+            const querySnapshot1 = await getDocs(query(registrationRef1, where("PatientId", "==", currentUser.uid)));
+            console.log(currentUser.uid)
+            // Check if any document is returned by the query
+            // if (!querySnapshot1.empty) {
+                // Access the first document in the query results
+                const registrationData1 = querySnapshot1.docs[0].data();
+
+                
+                // Access the patientName field from the document data
+                const patientName = registrationData1.fullName;
+                
+                // console.log(patientName);
+            // } else {
+                // console.log("No document found for the current user ID.");
+            // }
+            
+
             await addDoc(bookingRef, {
                 appointmentDate: formattedDate,
                 consultingService: selectedService,
                 PracticeId: selectedHospitalId,
                 PatientPracticeregistrationId: registrationDoc.id,
                 bookingconfirmed: "Pending",
-                patientId: currentUser.uid
+                patientId: currentUser.uid,
+                patientName:patientName
             });
 
             setBookingConfirmed(true);
