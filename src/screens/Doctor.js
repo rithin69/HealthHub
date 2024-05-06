@@ -54,9 +54,10 @@ firebase.initializeApp(firebaseConfig);
 
 
 
-function DoctorDashboard() {
+function Doctor() {
   const [user, setUser] = useState(null);
-  const [appointments, setAppointments] = useState([]);
+  const [doctorName, setDoctorName] = useState('');
+  const [appointmentBooking, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [prescriptionForm, setPrescriptionForm] = useState({
     patientName: '',
@@ -81,43 +82,89 @@ function DoctorDashboard() {
 
    // return unsubscribe;
  // }, []);
-
- 
  useEffect(() => {
   const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       setUser(user);
       try {
-        const appointmentsQuery = query(
-          collection(firestore, 'appointment_booking'),
-          where('doctorId', '==', user.uid),
-          where('bookingconfirmed', '==', true)
-        );
-        const appointmentsSnapshot = await getDocs(appointmentsQuery);
-        const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({ 
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setAppointments(appointmentsData);
-      } catch (error) {
-        console.error('Error fetching appointments:', error);
-      }
-    } else {
-      setUser(null);
-      setAppointments([]);
-      setPatients([]);
+      const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+      const doctorData = doctorDoc.data();
+      setDoctorName(doctorData?.doctorName || 'Unknown');
+    } catch (error) {
+      console.error('Error fetching doctor data:', error);
+      setDoctorName('Unknown');
     }
-  });
+  } else {
+    setUser(null);
+    setDoctorName('');
+  }
+});
 
   return unsubscribe;
 }, []);
+ 
+
+useEffect(() => {
+  const fetchAppointments = async () => {
+    try {
+      const appointmentsQuery = query(
+        collection(firestore, 'appointment_booking'),
+        where('doctorId', '==', user.uid),
+        where('practiceId', '==', user.uid),
+        where('bookingconfirmed', '==', true)
+      );
+      const appointmentsSnapshot = await getDocs(appointmentsQuery);
+      const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({ 
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAppointments(appointmentsData);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    }
+  };
+
+  if (user) {
+    fetchAppointments();
+  }
+}, [user]);
+
+
+ //useEffect(() => {
+ // const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+ //   if (user) {
+ //     setUser(user);
+ //     try {
+ //       const appointmentsQuery = query(
+ //         collection(firestore, 'appointment_booking'),
+ //         where('doctorId', '==', user.uid),
+ //         where('bookingconfirmed', '==', true)
+ //       );
+ //       const appointmentsSnapshot = await getDocs(appointmentsQuery);
+ //       const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({ 
+ //         id: doc.id,
+ //         ...doc.data(),
+ //       }));
+ //       setAppointments(appointmentsData);
+ //     } catch (error) {
+ //       console.error('Error fetching appointments:', error);
+ //     }
+ //   } else {
+ //     setUser(null);
+ //     setAppointments([]);
+ //     setPatients([]);
+ //   }
+  //});
+
+  //return unsubscribe;
+//}, []);
 
 useEffect(() => {
   const fetchPatients = async () => {
     try {
       const patientsQuery = query(
         collection(firestore, 'patient'),
-        where('doctorId', '==', user.uid)
+        where('doctorId', '==', user?.uid)
       );
       const patientsSnapshot = await getDocs(patientsQuery);
       const patientsData = patientsSnapshot.docs.map((doc) => ({
@@ -206,7 +253,7 @@ useEffect(() => {
   const getPatientRef = async (patientName) => {
     const patientsQuery = query(
       collection(firestore, 'patient'),
-      where('fullName', '==', patientName),
+      where('patientName', '==', patientName),
       where('doctorId', '==', user.uid),
     );
     const querySnapshot = await getDocs(patientsQuery);
@@ -220,7 +267,7 @@ useEffect(() => {
     <div className="flex flex-col min-h-screen">
       <header className="bg-blue-500 text-white py-4 px-6">
         <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
-        <h2 className="text-xl font-bold">Welcome, Dr. {user?.displayName}</h2>
+        <h2 className="text-xl font-bold">Welcome, Dr. {doctorName}</h2>
       </header>
 
       <ToastContainer
@@ -250,12 +297,12 @@ useEffect(() => {
                   </tr>
                 </thead>
                 <tbody>
-                  {appointments.map((appointment) => (
-                    <tr key={appointment.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">{appointment.patientName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{appointment.appointmentDate}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{appointment.consultingService}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{appointment.bookingconfirmed ? 'Confirmed' : 'Not Confirmed'}</td>
+                  {appointmentBooking.map((appointmentBooking) => (
+                    <tr key={appointmentBooking.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointmentBooking.patientName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointmentBooking.appointmentDate}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointmentBooking.consultingService}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{appointmentBooking.bookingconfirmed ? 'Confirmed' : 'Not Confirmed'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -267,12 +314,12 @@ useEffect(() => {
             <h3 className="text-lg font-bold mb-2">Generate Prescription</h3>
             <form onSubmit={handlePrescriptionSubmit} className="space-y-4">
               <div>
-                <label htmlFor="fullName" className="block font-bold mb-2">
+                <label htmlFor="patientName" className="block font-bold mb-2">
                   Patient Name
                 </label>
                 <input
                   type="text"
-                  id="fullName"
+                  id="patientName"
                   name="patientName"
                   value={prescriptionForm.patientName}
                   onChange={handlePrescriptionFormChange}
@@ -335,12 +382,12 @@ useEffect(() => {
             <h3 className="text-lg font-bold mb-2">Record Medical History</h3>
             <form onSubmit={handleMedicalHistorySubmit} className="space-y-4">
               <div>
-                <label htmlFor="fullName" className="block font-bold mb-2">
+                <label htmlFor="patientName" className="block font-bold mb-2">
                   Patient Name
                 </label>
                 <input
                   type="text"
-                  id="fullName"
+                  id="patientName"
                   name="patientName"
                   value={medicalHistoryForm.patientName}
                   onChange={handleMedicalHistoryFormChange}
@@ -394,6 +441,6 @@ useEffect(() => {
   );
 }
 
-export default DoctorDashboard;
+export default Doctor;
  
 //export default Doctor
