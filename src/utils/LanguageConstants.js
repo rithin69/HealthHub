@@ -23,7 +23,8 @@ const lang = {
       admin:"Admin",
       gender:"Gender", 
       forgotPassword:"Forgot Password?",
-      termsandconditions:"Terms and Conditions"
+      termsandconditions:"Terms and Conditions",
+      confirmPassword:"Confirm Password"
     },
     hi: {
       search: "खोजे",
