@@ -1,53 +1,53 @@
-//import React from 'react'
-//import Header from '../Components/Header'
+// //import React from 'react'
+// //import Header from '../Components/Header'
 
-//import React, { useState, useEffect } from 'react';
-//import { firestore } from '../utils/Firebase';
+// //import React, { useState, useEffect } from 'react';
+// //import { firestore } from '../utils/Firebase';
 
-//import firebase from 'firebase/app';
-//import 'firebase/auth';
-//import 'firebase/firestore';
-
-
-// Initialize Firebase
+// //import firebase from 'firebase/app';
+// //import 'firebase/auth';
+// //import 'firebase/firestore';
 
 
-
-//function Doctor() {
-  //return (
-  //<Header/>
- // )
-
-import React, { useState, useEffect } from 'react';
- //import { collection, getDocs, where, query, addDoc } from 'firebase/firestore';
- //import { firestore } from '../utils/Firebase';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where } from 'firebase/firestore';
-import { firestore } from '../utils/Firebase';
-
-//import { useAuthState } from 'react-firebase-hooks/auth';
-//import { useDocument } from 'react-firebase-hooks/firestore';
+// // Initialize Firebase
 
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
-// Your Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD13xG4R_YN7jt3LUQVBWmOwSdFbXSsV_8",
-  authDomain: "electronic-health-applic-2ff8e.firebaseapp.com",
-  databaseURL: "https://electronic-health-applic-2ff8e-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "electronic-health-applic-2ff8e",
-  storageBucket: "electronic-health-applic-2ff8e.appspot.com",
-  messagingSenderId: "460345209150",
-  appId: "1:460345209150:web:e5a5136db6097ce188bc6f",
-  measurementId: "G-2ZTFJGJD2T"
-};
+// //function Doctor() {
+//   //return (
+//   //<Header/>
+//  // )
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// import React, { useState, useEffect } from 'react';
+//  //import { collection, getDocs, where, query, addDoc } from 'firebase/firestore';
+//  //import { firestore } from '../utils/Firebase';
+// import firebase from 'firebase/compat/app';
+// import 'firebase/compat/auth';
+// import 'firebase/compat/firestore';
+// import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where } from 'firebase/firestore';
+// import { firestore } from '../utils/Firebase';
+
+// //import { useAuthState } from 'react-firebase-hooks/auth';
+// //import { useDocument } from 'react-firebase-hooks/firestore';
+
+
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+
+// // Your Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD13xG4R_YN7jt3LUQVBWmOwSdFbXSsV_8",
+//   authDomain: "electronic-health-applic-2ff8e.firebaseapp.com",
+//   databaseURL: "https://electronic-health-applic-2ff8e-default-rtdb.europe-west1.firebasedatabase.app",
+//   projectId: "electronic-health-applic-2ff8e",
+//   storageBucket: "electronic-health-applic-2ff8e.appspot.com",
+//   messagingSenderId: "460345209150",
+//   appId: "1:460345209150:web:e5a5136db6097ce188bc6f",
+//   measurementId: "G-2ZTFJGJD2T"
+// };
+
+// // Initialize Firebase
+// firebase.initializeApp(firebaseConfig);
 
 
 
@@ -71,14 +71,14 @@ function Doctor() {
     notes: '',
   });
 
-  //useEffect(() => {
-   // const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-    //  if (user) {
-   //     setUser(user);
-   //   } else {
-   //     setUser(null);
-   //   }
-   // });
+//   //useEffect(() => {
+//    // const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+//     //  if (user) {
+//    //     setUser(user);
+//    //   } else {
+//    //     setUser(null);
+//    //   }
+//    // });
 
    // return unsubscribe;
  // }, []);
@@ -177,78 +177,78 @@ useEffect(() => {
     }
   };
 
-  if (user) {
-    fetchPatients();
-  }
-}, [user]);
+//   if (user) {
+//     fetchPatients();
+//   }
+// }, [user]);
 
-  const handlePrescriptionFormChange = (e) => {
-    setPrescriptionForm({
-      ...prescriptionForm,
-      [e.target.name]: e.target.value,
-    });
-  };
+//   const handlePrescriptionFormChange = (e) => {
+//     setPrescriptionForm({
+//       ...prescriptionForm,
+//       [e.target.name]: e.target.value,
+//     });
+//   };
 
-  const handlePrescriptionSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const prescriptionData = {
-        ...prescriptionForm,
-        issueDate: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
-      console.log('Prescription submitted successfully');
-      toast.success('Prescription details updated successfully!');
-      setPrescriptionForm({
-        patientName: '',
-        medication: '',
-        dosage: '',
-        instructions: '',
-      });
-    } catch (error) {
-      console.error('Error submitting prescription:', error);
-      toast.error('Error updating prescription details.');
-    }
-  };
+//   const handlePrescriptionSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const prescriptionData = {
+//         ...prescriptionForm,
+//         issueDate: new Date(),
+//         createdAt: new Date(),
+//         updatedAt: new Date(),
+//       };
+//       await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
+//       console.log('Prescription submitted successfully');
+//       toast.success('Prescription details updated successfully!');
+//       setPrescriptionForm({
+//         patientName: '',
+//         medication: '',
+//         dosage: '',
+//         instructions: '',
+//       });
+//     } catch (error) {
+//       console.error('Error submitting prescription:', error);
+//       toast.error('Error updating prescription details.');
+//     }
+//   };
 
-  const handleMedicalHistoryFormChange = (e) => {
-    setMedicalHistoryForm({
-      ...medicalHistoryForm,
-      [e.target.name]: e.target.value,
-    });
-  };
+//   const handleMedicalHistoryFormChange = (e) => {
+//     setMedicalHistoryForm({
+//       ...medicalHistoryForm,
+//       [e.target.name]: e.target.value,
+//     });
+//   };
 
-  const handleMedicalHistorySubmit = async (e) => {
-    e.preventDefault();
-    try {
-      //console.log('Submitting medical history:', medicalHistoryForm);
-      const patientRef = await getPatientRef(medicalHistoryForm.patientName);
-      //console.log('Patient reference:', patientRef);
-      if (patientRef) {
-        await updateDoc(patientRef, {
-          medicalHistory: firebase.firestore.FieldValue.arrayUnion({
-            condition: medicalHistoryForm.condition,
-            notes: medicalHistoryForm.notes,
-          }),
-        });
-        console.log('Medical history updated successfully');
-        toast.success('Medical history updated successfully!');
-        setMedicalHistoryForm({
-          patientName: '',
-          condition: '',
-          notes: '',
-        });
-      } else {
-        console.error('Patient not found');
-        toast.error('Patient not found.');
-      }
-    } catch (error) {
-      console.error('Error updating medical history:', error);
-      toast.error('Error updating medical history.');
-    }
-  };
+//   const handleMedicalHistorySubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       //console.log('Submitting medical history:', medicalHistoryForm);
+//       const patientRef = await getPatientRef(medicalHistoryForm.patientName);
+//       //console.log('Patient reference:', patientRef);
+//       if (patientRef) {
+//         await updateDoc(patientRef, {
+//           medicalHistory: firebase.firestore.FieldValue.arrayUnion({
+//             condition: medicalHistoryForm.condition,
+//             notes: medicalHistoryForm.notes,
+//           }),
+//         });
+//         console.log('Medical history updated successfully');
+//         toast.success('Medical history updated successfully!');
+//         setMedicalHistoryForm({
+//           patientName: '',
+//           condition: '',
+//           notes: '',
+//         });
+//       } else {
+//         console.error('Patient not found');
+//         toast.error('Patient not found.');
+//       }
+//     } catch (error) {
+//       console.error('Error updating medical history:', error);
+//       toast.error('Error updating medical history.');
+//     }
+//   };
 
   const getPatientRef = async (patientName) => {
     const patientsQuery = query(
@@ -270,17 +270,17 @@ useEffect(() => {
         <h2 className="text-xl font-bold">Welcome, Dr. {doctorName}</h2>
       </header>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+//       <ToastContainer
+//         position="top-right"
+//         autoClose={3000}
+//         hideProgressBar={false}
+//         newestOnTop={false}
+//         closeOnClick
+//         rtl={false}
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//       />
 
 <main className="flex-grow p-6">
         <div className="flex flex-col w-full">
@@ -434,13 +434,13 @@ useEffect(() => {
         </div>
       </main>
 
-      <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
-        &copy; {new Date().getFullYear()} Health Hub
-      </footer>
-    </div>
-  );
-}
+//       <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
+//         &copy; {new Date().getFullYear()} Health Hub
+//       </footer>
+//     </div>
+//   );
+// }
 
 export default Doctor;
  
-//export default Doctor
+// //export default Doctor

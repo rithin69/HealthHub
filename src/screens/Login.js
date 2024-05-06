@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
 import { BG_URL } from "../utils/Constant";
 import { checkValidData } from "../utils/Validate";
@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 import { createUserDocument } from "../utils/Firebase"
-import { getFirestore, doc, updateDoc } from "firebase/firestore"; // Importing getFirestore, doc, and updateDoc
+import { getFirestore, doc, updateDoc } from "firebase/firestore"; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,7 +20,9 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedGender, setSelectedGender] = useState('');
-  const [newPassword, setNewPassword] = useState(''); // Adding state for newPassword
+  const [newPassword, setNewPassword] = useState(''); 
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [formFilled, setFormFilled] = useState(false);
   const langKey = useSelector((store) => store.config.lang);
 
   const [formData, setFormData] = useState({
@@ -32,6 +34,25 @@ const Login = () => {
   });
 
   const today = new Date();
+
+  useEffect(() => {
+    const isFormValid = () => {
+      if (isSignInForm) {
+        return formData.email && formData.password;
+      } else {
+        return (
+          formData.fullName &&
+          formData.dob &&
+          formData.address &&
+          formData.email &&
+          formData.password &&
+          agreeToTerms
+        );
+      }
+    };
+
+    setFormFilled(isFormValid());
+  }, [formData, agreeToTerms, isSignInForm]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +70,7 @@ const Login = () => {
   const handleButtonClick = () => {
     const message = checkValidData(formData.email, formData.password);
     setErrorMessage(message);
-    if (message) return;
+    if (message || (!isSignInForm && !agreeToTerms)) return;
 
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
@@ -135,12 +156,23 @@ const Login = () => {
       });
   };
 
+  const handleToggleTerms = () => {
+    setAgreeToTerms(!agreeToTerms);
+  };
+
+  const termsAndConditions = (
+    <div className="relative flex items-center text-black">
+      <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
+      <span>I agree to the website's <a href="#">terms and conditions.</a></span>
+    </div>
+  );
+
   return (
     <div className="">
       <Header />
       <div className="absolute">
         <img
-          className=" h-screen object-cover brightness-75 md:w-screen"
+          className="h-screen object-cover brightness-75 md:w-screen"
           src={BG_URL}
           alt="bgImg"
         />
@@ -148,7 +180,7 @@ const Login = () => {
       <div className="form relative flex h-screen items-center justify-center">
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="w-full rounded-lg bg-[#DBE9FA] bg-opacity-80 p-12 text-white md:w-3/12 z-40"
+          className="w-full rounded-lg bg-[#DBE9FA] bg-opacity-80 p-12 text-white md:w-7/12 lg:w-5/12 xl:w-4/12 z-40"
         >
           <h2 className="text-3xl font-bold text-black">
             {isSignInForm ? (
@@ -157,12 +189,12 @@ const Login = () => {
               <span>{lang[langKey].signUp}</span>
             )}
           </h2>
-          <div className=" my-6">
+          <div className=" my-6 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
             {!isSignInForm && (
               <>
                 <input
                   type="text"
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].fullName}
                   name="fullName"
                   onChange={handleInputChange}
@@ -170,27 +202,27 @@ const Login = () => {
                 <DatePicker
                   selected={formData.dob ? new Date(formData.dob) : null}
                   onChange={(date) => setFormData({ ...formData, dob: date })}
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   dateFormat="dd/MM/yyyy"
                   placeholderText={lang[langKey].dob}
                   maxDate={today}
-                  showYearDropdown // Enable year dropdown
-                  showMonthDropdown // Enable month dropdown
+                  showYearDropdown 
+                  showMonthDropdown 
                   dropdownMode="select"
                 />
                 <input
                   type="text"
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].address}
                   name="address"
                   onChange={handleInputChange}
                 />
                 <select
-                  className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black"
                   placeholder={lang[langKey].gender}
                   defaultValue="Gender"
                   value={selectedGender}
-                  onChange={handleGenderChange} // Handle gender change
+                  onChange={handleGenderChange} 
                 >
                   <option value="" disabled>Gender</option>
                   <option value="male">Male</option>
@@ -202,15 +234,15 @@ const Login = () => {
             )}
             <input
               type="text"
-              className="mb-3 w-full rounded-md bg-zinc-800 p-3 text-white"
+              className="mb-3 rounded-md bg-[#DBE9FA] p-3 text-black col-span-2"
               placeholder={lang[langKey].email}
               name="email"
               onChange={handleInputChange}
             />
-            <div className="relative flex items-center justify-end">
+            <div className="relative flex items-center justify-end padding-bottom-10px col-span-2">
               <input
                 type={showPassword ? "text" : "password"}
-                className="relative w-full select-none rounded-md bg-zinc-800 p-3 text-white"
+                className="relative w-full select-none rounded-md bg-[#DBE9FA] p-3 text-black"
                 placeholder={isSignInForm ? lang[langKey].password : lang[langKey].createPwd}
                 name="password"
                 onChange={handleInputChange}
@@ -232,9 +264,9 @@ const Login = () => {
               )}
             </div>
             {isSignInForm && (
-              <div className="mb-3 w-full my-3">
+              <div className="col-span-2 mb-3 w-full my-3">
                 <select
-                  className="w-full rounded-md bg-zinc-800 p-3 text-white"
+                  className="w-full rounded-md bg-[#DBE9FA] p-3 text-black"
                   defaultValue=""
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
@@ -247,11 +279,19 @@ const Login = () => {
                 </select>
               </div>
             )}
+            {!isSignInForm && (
+              <div className="relative flex items-center text-black col-span-2">
+                {termsAndConditions}
+              </div>
+            )}
           </div>
           <p className="text-red-500">{errorMessage}</p>
           <button
-            className="mt-5 w-full rounded-md bg-blue-600 py-3 text-white"
+            className={`mt-5 w-full rounded-md py-3 text-white ${
+              formFilled ? 'bg-blue-600' : 'bg-gray-400 cursor-not-allowed'
+            }`}
             onClick={handleButtonClick}
+            disabled={!formFilled}
           >
             {isSignInForm ? (
               <span>{lang[langKey].signIn}</span>
@@ -260,15 +300,16 @@ const Login = () => {
             )}
           </button>
           <div className="my-2 flex justify-between">
-            <div className="mb-3 w-full my-3">
-              <a className="text-[#0000FF] hover:underline cursor-pointer" onClick={handleForgotPassword}>
-                {lang[langKey].forgotPassword}
-              </a>
-            </div>
+            {isSignInForm && (
+              <div className="mb-3 w-full my-3">
+                <a className="text-[#0000FF] hover:underline cursor-pointer" onClick={handleForgotPassword}>
+                  {lang[langKey].forgotPassword}
+                </a>
+              </div>
+            )}
           </div>
-
           {isSignInForm && (
-            <div className="py-12">
+            <div className="my-2 flex justify-between">
               <h1 className="mb-2 flex text-black">
                 {lang[langKey].newPatient}{" "}
                 <p
@@ -281,7 +322,7 @@ const Login = () => {
             </div>
           )}
           {!isSignInForm && (
-            <div className="pb-12">
+            <div className="pb-6">
               <h1 className="mb-2 flex text-[#000000]">
                 {lang[langKey].alreadyUser}{" "}
                 <p
@@ -296,7 +337,7 @@ const Login = () => {
         </form>
       </div>
     </div>
-  );
+  );  
 };
 
 export default Login;

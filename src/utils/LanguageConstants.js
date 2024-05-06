@@ -5,7 +5,7 @@ const lang = {
       gptSearchPlaceHolder: "What would you like to watch today ?",
       signIn: "Sign In",
       signUp: "Sign Up",
-      fullName: "Full Name",
+      fullName: "Name",
       email: "Email Address",
       password: "Password",
       createPwd: "Create New Password",
@@ -22,7 +22,9 @@ const lang = {
       doctor:"Doctor",
       admin:"Admin",
       gender:"Gender", 
-      forgotPassword:"Forgot Password?"
+      forgotPassword:"Forgot Password?",
+      termsandconditions:"Terms and Conditions",
+      confirmPassword:"Confirm Password"
     },
     hi: {
       search: "खोजे",
