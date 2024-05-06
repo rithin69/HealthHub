@@ -38,7 +38,7 @@ const Login = () => {
   useEffect(() => {
     const isFormValid = () => {
       if (isSignInForm) {
-        return formData.email && formData.password && agreeToTerms;
+        return formData.email && formData.password;
       } else {
         return (
           formData.fullName &&
@@ -70,7 +70,7 @@ const Login = () => {
   const handleButtonClick = () => {
     const message = checkValidData(formData.email, formData.password);
     setErrorMessage(message);
-    if (message || !agreeToTerms) return;
+    if (message || (!isSignInForm && !agreeToTerms)) return;
 
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
@@ -163,7 +163,7 @@ const Login = () => {
   const termsAndConditions = (
     <div className="relative flex items-center text-black">
       <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
-      <span>I agree to the <a href="#">terms and conditions</a></span>
+      <span>I agree to the website's <a href="#">terms and conditions.</a></span>
     </div>
   );
 
@@ -264,9 +264,9 @@ const Login = () => {
               )}
             </div>
             {isSignInForm && (
-              <div className="mb-3 w-full my-3">
+              <div className="col-span-2 mb-3 w-full my-3">
                 <select
-                  className="w-full rounded-md bg-[#DBE9FA] p-3 text-white"
+                  className="w-full rounded-md bg-[#DBE9FA] p-3 text-black"
                   defaultValue=""
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
@@ -279,11 +279,10 @@ const Login = () => {
                 </select>
               </div>
             )}
-            {termsAndConditions && (
+            {!isSignInForm && (
               <div className="relative flex items-center text-black col-span-2">
-                <input type="checkbox" checked={agreeToTerms} onChange={handleToggleTerms} className="mr-2" />
-                <span>I agree to the website <a href="#">terms and conditions</a></span>
-              </div>            
+                {termsAndConditions}
+              </div>
             )}
           </div>
           <p className="text-red-500">{errorMessage}</p>
@@ -301,13 +300,14 @@ const Login = () => {
             )}
           </button>
           <div className="my-2 flex justify-between">
-            <div className="mb-3 w-full my-3">
-              <a className="text-[#0000FF] hover:underline cursor-pointer" onClick={handleForgotPassword}>
-                {lang[langKey].forgotPassword}
-              </a>
-            </div>
+            {isSignInForm && (
+              <div className="mb-3 w-full my-3">
+                <a className="text-[#0000FF] hover:underline cursor-pointer" onClick={handleForgotPassword}>
+                  {lang[langKey].forgotPassword}
+                </a>
+              </div>
+            )}
           </div>
-  
           {isSignInForm && (
             <div className="my-2 flex justify-between">
               <h1 className="mb-2 flex text-black">
