@@ -555,10 +555,10 @@ function Doctor() {
     fetchData();
    }, []);
 
-  useEffect(() => {
-    fetchAppointments();
-    fetchPatients();
-  }, [user]);
+  // useEffect(() => {
+  //   fetchAppointments();
+  //   fetchPatients();
+  // }, [user]);
 //newly added
 
 
@@ -629,6 +629,11 @@ if (user) {
     }
   }, [user]);
 
+  useEffect(() => {
+    fetchAppointments();
+    //fetchPatients();
+  }, [user]);
+
   // Handle changes in prescription form fields
   const handlePrescriptionFormChange = (e) => {
     setPrescriptionForm({
@@ -648,7 +653,7 @@ if (user) {
       };
       await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
       console.log('Prescription submitted successfully');
-      toast.success('Prescription details updated successfully!');
+      //toast.success('Prescription details updated successfully!');
       setPrescriptionForm({
         patientName: '',
         medication: '',
@@ -657,10 +662,11 @@ if (user) {
       });
     } catch (error) {
       console.error('Error submitting prescription:', error);
-      toast.error('Error updating prescription details.');
+      //toast.error('Error updating prescription details.');
     }
   };
 
+  // Handle changes in medical history form fields
   const handleMedicalHistoryFormChange = (e) => {
     setMedicalHistoryForm({
       ...medicalHistoryForm,
@@ -668,6 +674,7 @@ if (user) {
     });
   };
 
+  // Handle submission of medical history form
   const handleMedicalHistorySubmit = async (e) => {
     e.preventDefault();
     try {
@@ -680,7 +687,7 @@ if (user) {
           }),
         });
         console.log('Medical history updated successfully');
-        toast.success('Medical history updated successfully!');
+        //toast.success('Medical history updated successfully!');
         setMedicalHistoryForm({
           patientName: '',
           condition: '',
@@ -688,14 +695,15 @@ if (user) {
         });
       } else {
         console.error('Patient not found');
-        toast.error('Patient not found.');
+        //toast.error('Patient not found.');
       }
     } catch (error) {
       console.error('Error updating medical history:', error);
-      toast.error('Error updating medical history.');
+      //toast.error('Error updating medical history.');
     }
   };
 
+  // Function to get reference to patient document
   const getPatientRef = async (patientName) => {
     const patientsQuery = query(
       collection(firestore, 'patient'),
