@@ -18,36 +18,36 @@
 //   //<Header/>
 //  // )
 
-// import React, { useState, useEffect } from 'react';
-//  //import { collection, getDocs, where, query, addDoc } from 'firebase/firestore';
-//  //import { firestore } from '../utils/Firebase';
-// import firebase from 'firebase/compat/app';
-// import 'firebase/compat/auth';
-// import 'firebase/compat/firestore';
-// import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where } from 'firebase/firestore';
-// import { firestore } from '../utils/Firebase';
+import React, { useState, useEffect } from 'react';
+//import { collection, getDocs, where, query, addDoc } from 'firebase/firestore';
+import { firestore } from '../utils/Firebase';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where } from 'firebase/firestore';
+import { firestore } from '../utils/Firebase';
 
 // //import { useAuthState } from 'react-firebase-hooks/auth';
 // //import { useDocument } from 'react-firebase-hooks/firestore';
 
 
-// import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-// // Your Firebase configuration
-// const firebaseConfig = {
-//   apiKey: "AIzaSyD13xG4R_YN7jt3LUQVBWmOwSdFbXSsV_8",
-//   authDomain: "electronic-health-applic-2ff8e.firebaseapp.com",
-//   databaseURL: "https://electronic-health-applic-2ff8e-default-rtdb.europe-west1.firebasedatabase.app",
-//   projectId: "electronic-health-applic-2ff8e",
-//   storageBucket: "electronic-health-applic-2ff8e.appspot.com",
-//   messagingSenderId: "460345209150",
-//   appId: "1:460345209150:web:e5a5136db6097ce188bc6f",
-//   measurementId: "G-2ZTFJGJD2T"
-// };
+// Your Firebase configuration
+const firebaseConfig = {
+apiKey: "AIzaSyD13xG4R_YN7jt3LUQVBWmOwSdFbXSsV_8",
+authDomain: "electronic-health-applic-2ff8e.firebaseapp.com",
+databaseURL: "https://electronic-health-applic-2ff8e-default-rtdb.europe-west1.firebasedatabase.app",
+projectId: "electronic-health-applic-2ff8e",
+storageBucket: "electronic-health-applic-2ff8e.appspot.com",
+messagingSenderId: "460345209150",
+appId: "1:460345209150:web:e5a5136db6097ce188bc6f",
+measurementId: "G-2ZTFJGJD2T"
+};
 
 // // Initialize Firebase
-// firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 
 
@@ -177,8 +177,8 @@ useEffect(() => {
     }
   };
 
-//   if (user) {
-//     fetchPatients();
+if (user) {
+     fetchPatients();
 //   }
 // }, [user]);
 
@@ -270,17 +270,17 @@ useEffect(() => {
         <h2 className="text-xl font-bold">Welcome, Dr. {doctorName}</h2>
       </header>
 
-//       <ToastContainer
-//         position="top-right"
-//         autoClose={3000}
-//         hideProgressBar={false}
-//         newestOnTop={false}
-//         closeOnClick
-//         rtl={false}
-//         pauseOnFocusLoss
-//         draggable
-//         pauseOnHover
-//       />
+       <ToastContainer
+         position="top-right"
+         autoClose={3000}
+         hideProgressBar={false}
+         newestOnTop={false}
+         closeOnClick
+         rtl={false}
+         pauseOnFocusLoss
+         draggable
+        pauseOnHover
+       />
 
 <main className="flex-grow p-6">
         <div className="flex flex-col w-full">
@@ -434,13 +434,13 @@ useEffect(() => {
         </div>
       </main>
 
-//       <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
-//         &copy; {new Date().getFullYear()} Health Hub
-//       </footer>
-//     </div>
-//   );
-// }
+       <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
+         &copy; {new Date().getFullYear()} Health Hub
+       </footer>
+     </div>
+   );
+ }
 
 export default Doctor;
  
-// //export default Doctor
+//export default Doctor
