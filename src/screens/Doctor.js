@@ -560,6 +560,8 @@ function Doctor() {
     fetchPatients();
   }, [user]);
 //newly added
+
+
   const fetchAppointments = async () => {
     try {
       const appointmentsQuery = query(
@@ -603,7 +605,8 @@ function Doctor() {
     }
   };
 
-
+// Fetch patients when user data changes
+useEffect(() => {
   const fetchPatients = async () => {
     try {
       const patientsQuery = query(
@@ -619,6 +622,19 @@ function Doctor() {
     } catch (error) {
       console.error('Error fetching patients:', error);
     }
+  };
+
+if (user) {
+      fetchPatients();
+    }
+  }, [user]);
+
+  // Handle changes in prescription form fields
+  const handlePrescriptionFormChange = (e) => {
+    setPrescriptionForm({
+      ...prescriptionForm,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handlePrescriptionSubmit = async (e) => {
