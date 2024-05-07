@@ -533,7 +533,9 @@ function Doctor() {
       if (user) {
         setUser(user);
         try {
-          const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+          //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+          //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.doctorId));
+          const doctorDoc = await getDoc(doc(firestore, 'doctors', doctorName));
           const doctorData = doctorDoc.data();
           setDoctorName(doctorData?.doctorName || 'Unknown');
         } catch (error) {
