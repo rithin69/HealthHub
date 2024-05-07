@@ -513,8 +513,20 @@ firebase.initializeApp(firebaseConfig);
 function Doctor() {
   const [user, setUser] = useState(null);
   const [doctorName, setDoctorName] = useState('');
+  const [patients, setPatients] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [prescriptionForm, setPrescriptionForm] = useState({
+    patientName: '',
+    medication: '',
+    dosage: '',
+    instructions: '',
+  });
+  const [medicalHistoryForm, setMedicalHistoryForm] = useState({
+    patientName: '',
+    condition: '',
+    notes: '',
+  });
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
@@ -537,9 +549,35 @@ function Doctor() {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
+
+  
+   useEffect(() => {
     fetchData();
-  }, []);
+   }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+    fetchPatients();
+  }, [user]);
+//newly added
+  const fetchAppointments = async () => {
+    try {
+      const appointmentsQuery = query(
+        collection(firestore, 'appointment_booking'),
+        where('doctorId', '==', user?.uid),
+        where('practiceId', '==', user?.uid),
+        where('bookingconfirmed', '==', true)
+      );
+      const appointmentsSnapshot = await getDocs(appointmentsQuery);
+      const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({ 
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAppointments(appointmentsData);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -565,6 +603,98 @@ function Doctor() {
     }
   };
 
+
+  const fetchPatients = async () => {
+    try {
+      const patientsQuery = query(
+        collection(firestore, 'patient'),
+        where('doctorId', '==', user?.uid)
+      );
+      const patientsSnapshot = await getDocs(patientsQuery);
+      const patientsData = patientsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPatients(patientsData);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+    }
+  };
+
+  const handlePrescriptionSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const prescriptionData = {
+        ...prescriptionForm,
+        issueDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
+      console.log('Prescription submitted successfully');
+      toast.success('Prescription details updated successfully!');
+      setPrescriptionForm({
+        patientName: '',
+        medication: '',
+        dosage: '',
+        instructions: '',
+      });
+    } catch (error) {
+      console.error('Error submitting prescription:', error);
+      toast.error('Error updating prescription details.');
+    }
+  };
+
+  const handleMedicalHistoryFormChange = (e) => {
+    setMedicalHistoryForm({
+      ...medicalHistoryForm,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleMedicalHistorySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const patientRef = await getPatientRef(medicalHistoryForm.patientName);
+      if (patientRef) {
+        await updateDoc(patientRef, {
+          medicalHistory: firebase.firestore.FieldValue.arrayUnion({
+            condition: medicalHistoryForm.condition,
+            notes: medicalHistoryForm.notes,
+          }),
+        });
+        console.log('Medical history updated successfully');
+        toast.success('Medical history updated successfully!');
+        setMedicalHistoryForm({
+          patientName: '',
+          condition: '',
+          notes: '',
+        });
+      } else {
+        console.error('Patient not found');
+        toast.error('Patient not found.');
+      }
+    } catch (error) {
+      console.error('Error updating medical history:', error);
+      toast.error('Error updating medical history.');
+    }
+  };
+
+  const getPatientRef = async (patientName) => {
+    const patientsQuery = query(
+      collection(firestore, 'patient'),
+      where('patientName', '==', patientName),
+      where('doctorId', '==', user?.uid),
+    );
+    const querySnapshot = await getDocs(patientsQuery);
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0].ref;
+    }
+    return null;
+  };
+
+
+
   const handleAccept = async (id) => {
     try {
       await updateDoc(doc(firestore, 'appointment_booking', id), { bookingconfirmed: 'Approved' });
@@ -584,28 +714,108 @@ function Doctor() {
   };
 
   return (
-    <div className="container mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="grid grid-cols-4 gap-4">
-          {appointments.map(appointment => (
-            <div key={appointment.id} className="border p-4">
-              <p><strong>Patient Name:</strong> {appointment.patientName}</p>
-              <p><strong>Appointment Date:</strong> {appointment.appointmentDate}</p>
-              <p><strong>Consulting Service:</strong> {appointment.consultingService}</p>
-              <p><strong>Hospital Name:</strong> {appointment.hospitalName}</p>
-              <div className="flex mt-4">
-                <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
-                <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button>
-              </div>
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-blue-500 text-white py-4 px-6">
+        <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
+        <h2 className="text-xl font-bold">Welcome, Dr. {doctorName}</h2>
+      </header>
+
+      {/* <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      /> */}
+
+      <main className="flex-grow p-6">
+        <div className="container mx-auto">
+          <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <div className="grid grid-cols-4 gap-4">
+              {appointments.map(appointment => (
+                <div key={appointment.id} className="border p-4">
+                  <p><strong>Patient Name:</strong> {appointment.patientName}</p>
+                  <p><strong>Appointment Date:</strong> {appointment.appointmentDate}</p>
+                  <p><strong>Consulting Service:</strong> {appointment.consultingService}</p>
+                  <p><strong>Hospital Name:</strong> {appointment.hospitalName}</p>
+                  <div className="flex mt-4">
+                    <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
+                    <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+
+        <div className="container mx-auto">
+          <h1 className="text-2xl font-bold mb-4">Prescription Form</h1>
+          <form onSubmit={handlePrescriptionSubmit} className="flex flex-col gap-4">
+            <input type="text" name="patientName" placeholder="Patient Name" value={prescriptionForm.patientName} onChange={handlePrescriptionFormChange} />
+            <input type="text" name="medication" placeholder="Medication" value={prescriptionForm.medication} onChange={handlePrescriptionFormChange} />
+            <input type="text" name="dosage" placeholder="Dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} />
+            <input type="text" name="instructions" placeholder="Instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} />
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Prescription</button>
+          </form>
+        </div>
+
+        <div className="container mx-auto">
+          <h1 className="text-2xl font-bold mb-4">Medical History Form</h1>
+          <form onSubmit={handleMedicalHistorySubmit} className="flex flex-col gap-4">
+            <input type="text" name="patientName" placeholder="Patient Name" value={medicalHistoryForm.patientName} onChange={handleMedicalHistoryFormChange} />
+            <input type="text" name="condition" placeholder="Condition" value={medicalHistoryForm.condition} onChange={handleMedicalHistoryFormChange} />
+            <input type="text" name="notes" placeholder="Notes" value={medicalHistoryForm.notes} onChange={handleMedicalHistoryFormChange} />
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Medical History</button>
+          </form>
+        </div>
+      </main>
+
+      <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
+        &copy; {new Date().getFullYear()} Health Hub
+      </footer>
     </div>
   );
 }
 
 export default Doctor;
+
+
+
+
+
+
+
+
+//   return (
+//     <div className="container mx-auto">
+//       <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
+//       {loading ? (
+//         <p>Loading...</p>
+//       ) : (
+//         <div className="grid grid-cols-4 gap-4">
+//           {appointments.map(appointment => (
+//             <div key={appointment.id} className="border p-4">
+//               <p><strong>Patient Name:</strong> {appointment.patientName}</p>
+//               <p><strong>Appointment Date:</strong> {appointment.appointmentDate}</p>
+//               <p><strong>Consulting Service:</strong> {appointment.consultingService}</p>
+//               <p><strong>Hospital Name:</strong> {appointment.hospitalName}</p>
+//               <div className="flex mt-4">
+//                 <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
+//                 <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
