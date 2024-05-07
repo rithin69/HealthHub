@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../utils/Firebase';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import axios from 'axios';
 
 const PractitionerComponent = () => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [newAppointmentDate, setNewAppointmentDate] = useState('');
+    const [patientEmail, setPatientEmail] = useState('');
 
     useEffect(() => {
         fetchData();
@@ -57,6 +61,38 @@ const PractitionerComponent = () => {
         }
     };
 
+    const handleOfferAlternative = (patientEmail) => {
+      setShowModal(true);
+      setPatientEmail(patientEmail);
+  };
+
+  const handleModalClose = () => {
+      setShowModal(false);
+      setNewAppointmentDate('');
+  };
+
+  const handleSendMail = async () => {
+      try {
+          // Make a POST request to the backend server endpoint
+          const response = await axios.post('http://localhost:5000/send-email', {
+              to: patientEmail, // Patient's email address
+              subject: 'New Appointment Date', // Email subject
+              text: ` Hii ${appointments[0].patientName},
+               Your new appointment date is ${newAppointmentDate}
+
+               Please feel free to contact us if you have any questions or concerns.
+               Contact Us: healthhub75@gmail.com` // Email body
+             
+          });
+         //// console.log(appointments);
+          console.log(response.data); // Log success message
+          handleModalClose(); // Close the modal after sending the email
+      } catch (error) {
+          console.error('Error sending email:', error); // Log any errors
+      }
+  };
+ 
+
     return (
         <div className="container mx-auto">
             <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
@@ -73,11 +109,29 @@ const PractitionerComponent = () => {
                             <div className="flex mt-4">
                                 <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
                                 <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button>
+                                <button onClick={() => handleOfferAlternative(appointment.patientemailid)} className="bg-blue-500 text-white px-4 py-2">Offer Alternative</button>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-5 rounded-lg max-w-md mx-auto">
+                        <h2 className="text-xl font-bold mb-4">Offer Alternative Appointment</h2>
+                        <label htmlFor="newAppointmentDate" className="block mb-2">New Appointment Date:</label>
+                        <input type="date" id="newAppointmentDate" value={newAppointmentDate} onChange={(e) => setNewAppointmentDate(e.target.value)} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
+                        <label htmlFor="patientEmail" className="block mb-2">Patient Email ID:</label>
+                        <input type="email" id="patientEmail" value={patientEmail} disabled className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
+                        <button className="bg-blue-500 text-white px-4 py-2 mr-2" onClick={handleSendMail}>Send Mail</button>
+                        <button className="bg-gray-300 text-gray-700 px-4 py-2" onClick={handleModalClose}>Cancel</button>
+                    </div>
+                </div>
+            )}
+
+
+
+
         </div>
     );
 };
