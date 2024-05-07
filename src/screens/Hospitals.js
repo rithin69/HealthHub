@@ -203,6 +203,7 @@ const Hospitals = () => {
                 
                 // Access the patientName field from the document data
                 const patientName = registrationData1.fullName;
+                const patientemailid=registrationData1.email;
                 
                 // console.log(patientName);
             // } else {
@@ -217,7 +218,8 @@ const Hospitals = () => {
                 PatientPracticeregistrationId: registrationDoc.id,
                 bookingconfirmed: "Pending",
                 patientId: currentUser.uid,
-                patientName:patientName
+                patientName:patientName,
+                patientemailid:patientemailid
             });
 
             setBookingConfirmed(true);
