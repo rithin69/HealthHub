@@ -55,9 +55,10 @@ const PractitionerComponent = () => {
         }
     };
 
-    const handleOfferAlternative = (patientEmail) => {
+    const handleOfferAlternative = async  (patientEmail) => {
         setShowModal(true);
         setPatientEmail(patientEmail);
+       
     };
 
     const handleModalClose = () => {
@@ -102,7 +103,7 @@ const PractitionerComponent = () => {
                             <div className="flex mt-4">
                                 <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
                                 <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2 mr-2">Reject</button>
-                                <button onClick={() => handleOfferAlternative(appointment.patientemailid)} className="bg-blue-500 text-white px-4 py-2">Offer Alternative</button>
+                                <button onClick={() => handleOfferAlternative(appointment.patientemailid,appointment.id)} className="bg-blue-500 text-white px-4 py-2">Offer Alternative</button>
                             </div>
                         </div>
                     ))}
