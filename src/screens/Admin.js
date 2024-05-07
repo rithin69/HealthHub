@@ -26,10 +26,16 @@ const Admin = () => {
         </div>
         {activeTab === 'registrationRequests' && <RegistrationRequests />}
         {activeTab === 'addNew' && (
-          <div>
-            <button onClick={() => setShowDoctorModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none">Add Doctor</button>
-            <button onClick={() => setShowPractitionerModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none">Add Practitioner</button>
-            <button onClick={() => setShowPracticeModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none">Add Practice</button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-4">
+              <button onClick={() => setShowDoctorModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none block w-full">Add Doctor</button>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <button onClick={() => setShowPractitionerModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none block w-full">Add Practitioner</button>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <button onClick={() => setShowPracticeModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none block w-full">Add Practice</button>
+            </div>
           </div>
         )}
         {/* Modals */}
