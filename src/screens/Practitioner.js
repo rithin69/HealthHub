@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../utils/Firebase';
-import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc,addDoc } from 'firebase/firestore';
 import axios from 'axios';
 
 const PractitionerComponent = () => {
@@ -204,7 +204,9 @@ const sendPrescriptionEmail = async (prescriptionData) => {
                             <input type="text" id="dosage" name="dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
                             <label htmlFor="instructions" className="block mb-2">Instructions:</label>
                             <textarea id="instructions" name="instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full"></textarea>
+                            
                             <button type="submit" className="bg-blue-500 text-white px-4 py-2 mr-2">Submit Prescription</button>
+
                             <button type="button" onClick={() => setShowPrescriptionForm(false)} className="bg-gray-300 text-gray-700 px-4 py-2">Cancel</button>
                         </form>
                     </div>
