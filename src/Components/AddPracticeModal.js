@@ -12,6 +12,7 @@ const AddPracticeModal = ({ onClose }) => {
       services: ''
     });
     const [practiceIdCounter, setPracticeIdCounter] = useState(11); // Start from 11
+    const [successMessage, setSuccessMessage] = useState('');
 
     const modalRef = useRef(null);
   
@@ -33,6 +34,7 @@ const AddPracticeModal = ({ onClose }) => {
           createdInAddPracticeModal: true,
           createdAt: serverTimestamp()
         });
+        setSuccessMessage('Practice added successfully.');
         console.log('Practice added successfully:', practiceForm);
         // Increment the practiceIdCounter for the next practice
         setPracticeIdCounter(prevCounter => prevCounter + 1);
@@ -44,6 +46,10 @@ const AddPracticeModal = ({ onClose }) => {
           image: '',
           services: ''
         });
+        setTimeout(() => {
+          onClose();
+          setSuccessMessage('');
+        }, 2000);
       } catch (error) {
         console.error('Error adding practice:', error);
       }
@@ -61,6 +67,9 @@ const AddPracticeModal = ({ onClose }) => {
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Practice</h3>
+                    {successMessage && (
+                      <div className="bg-green-200 text-green-700 px-4 py-2 rounded mb-4">{successMessage}</div>
+                    )}
                     <form onSubmit={handleAddPractice}>
                       <div className="grid grid-cols-1 gap-4">
                         <div>
