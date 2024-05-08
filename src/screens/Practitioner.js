@@ -9,6 +9,13 @@ const PractitionerComponent = () => {
     const [showModal, setShowModal] = useState(false);
     const [newAppointmentDate, setNewAppointmentDate] = useState('');
     const [patientEmail, setPatientEmail] = useState('');
+    const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
+    const [prescriptionForm, setPrescriptionForm] = useState({
+        patientName: '',
+        medication: '',
+        dosage: '',
+        instructions: '',
+    });
 
     useEffect(() => {
         fetchData();
@@ -91,7 +98,61 @@ const PractitionerComponent = () => {
           console.error('Error sending email:', error); // Log any errors
       }
   };
- 
+
+
+  const handlePrescriptionFormChange = (e) => {
+    setPrescriptionForm({
+        ...prescriptionForm,
+        [e.target.name]: e.target.value,
+    });
+};
+
+const handlePrescriptionSubmit = async (e) => {
+  e.preventDefault();
+  try {
+      const prescriptionData = {
+          ...prescriptionForm,
+          issueDate: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+      };
+      await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
+      console.log('Prescription submitted successfully');
+      // Send prescription email to patient
+      await sendPrescriptionEmail(prescriptionData);
+      // Clear the prescription form fields
+      setPrescriptionForm({
+          patientName: '',
+          medication: '',
+          dosage: '',
+          instructions: '',
+      });
+
+// Close the prescription form modal
+setShowPrescriptionForm(false);
+} catch (error) {
+    console.error('Error submitting prescription:', error);
+}
+};
+
+const sendPrescriptionEmail = async (prescriptionData) => {
+  try {
+      const response = await axios.post('http://localhost:5000/send-email', {
+          to: prescriptionData.patientEmail,
+          subject: 'Prescription Details',
+          text: `Dear ${prescriptionData.patientName}, Here are your prescription details:
+          Medication: ${prescriptionData.medication}
+          Dosage: ${prescriptionData.dosage}
+          Instructions: ${prescriptionData.instructions}
+          Issue Date: ${prescriptionData.issueDate}`
+      });
+      console.log(response.data);
+  } catch (error) {
+      console.error('Error sending prescription email:', error);
+  }
+};
+
+
 
     return (
         <div className="container mx-auto">
@@ -125,6 +186,27 @@ const PractitionerComponent = () => {
                         <input type="email" id="patientEmail" value={patientEmail} disabled className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
                         <button className="bg-blue-500 text-white px-4 py-2 mr-2" onClick={handleSendMail}>Send Mail</button>
                         <button className="bg-gray-300 text-gray-700 px-4 py-2" onClick={handleModalClose}>Cancel</button>
+                    </div>
+                </div>
+            )}
+
+<button className="bg-blue-500 text-white px-4 py-2 mt-4" onClick={() => setShowPrescriptionForm(true)}>Prescription Form</button>
+            {showPrescriptionForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-5 rounded-lg max-w-md mx-auto">
+                        <h2 className="text-xl font-bold mb-4">Prescription Form</h2>
+                        <form onSubmit={handlePrescriptionSubmit}>
+                            <label htmlFor="patientName" className="block mb-2">Patient Name:</label>
+                            <input type="text" id="patientName" name="patientName" value={prescriptionForm.patientName} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
+                            <label htmlFor="medication" className="block mb-2">Medication:</label>
+                            <input type="text" id="medication" name="medication" value={prescriptionForm.medication} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
+                            <label htmlFor="dosage" className="block mb-2">Dosage:</label>
+                            <input type="text" id="dosage" name="dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
+                            <label htmlFor="instructions" className="block mb-2">Instructions:</label>
+                            <textarea id="instructions" name="instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full"></textarea>
+                            <button type="submit" className="bg-blue-500 text-white px-4 py-2 mr-2">Submit Prescription</button>
+                            <button type="button" onClick={() => setShowPrescriptionForm(false)} className="bg-gray-300 text-gray-700 px-4 py-2">Cancel</button>
+                        </form>
                     </div>
                 </div>
             )}
