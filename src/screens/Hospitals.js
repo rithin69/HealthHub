@@ -328,7 +328,7 @@ const Hospitals = () => {
                 </button>
                 <button
                     className="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-6 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out mx-4"
-                    onClick={toggleProfileModal}
+                    // onClick={}
                 >
                     LOGOUT
                 </button>
