@@ -16,6 +16,10 @@ const PractitionerComponent = () => {
         dosage: '',
         instructions: '',
     });
+    const [showDoctorSelection, setShowDoctorSelection] = useState(false);
+    const [doctorsList, setDoctorsList] = useState([]);
+    const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState('');
 
     useEffect(() => {
         fetchData();
@@ -52,11 +56,43 @@ const PractitionerComponent = () => {
   
     const handleAccept = async (id) => {
         try {
+            const appointmentRef = doc(firestore, 'appointment_booking', id);
+            const appointmentDoc = await getDoc(appointmentRef);
+            const appointmentData = appointmentDoc.data();
+
+            const doctorsQuery = query(collection(firestore, 'doctors'), where('practiceid', '==', appointmentData.PracticeId));
+            const doctorsSnapshot = await getDocs(doctorsQuery);
+            const doctors = doctorsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            setDoctorsList(doctors);
+            setShowDoctorSelection(true);
             await updateDoc(doc(firestore, 'appointment_booking', id), { bookingconfirmed: 'Approved' });
             setAppointments(appointments.filter(appointment => appointment.id !== id));
+            setSelectedAppointmentId(id);
         } catch (error) {
             console.error('Error accepting appointment:', error);
         }
+    };
+
+    const handleAssignDoctor = async () => {
+        try {
+            const appointmentRef = doc(firestore, 'appointment_booking', selectedAppointmentId);
+            await updateDoc(appointmentRef, { 
+                bookingconfirmed: 'Approved',
+                assignedDoctorId: selectedDoctor
+            });
+            setAppointments(appointments.filter(appointment => appointment.id !== selectedAppointmentId));
+            setShowDoctorSelection(false);
+            setSelectedAppointmentId('');
+        } catch (error) {
+            console.error('Error assigning doctor:', error);
+        }
+    };
+
+    const handleCancelAssignDoctor = () => {
+        setShowDoctorSelection(false);
+        setSelectedDoctor('');
+        setSelectedAppointmentId('');
     };
 //reject
     const handleReject = async (id) => {
@@ -204,9 +240,30 @@ const sendPrescriptionEmail = async (prescriptionData) => {
                             <input type="text" id="dosage" name="dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
                             <label htmlFor="instructions" className="block mb-2">Instructions:</label>
                             <textarea id="instructions" name="instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} className="border border-gray-300 rounded-md mb-4 p-2 block w-full"></textarea>
+                            
                             <button type="submit" className="bg-blue-500 text-white px-4 py-2 mr-2">Submit Prescription</button>
+
                             <button type="button" onClick={() => setShowPrescriptionForm(false)} className="bg-gray-300 text-gray-700 px-4 py-2">Cancel</button>
                         </form>
+                    </div>
+                </div>
+            )}
+            {showDoctorSelection && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-5 rounded-lg max-w-md mx-auto">
+                        <h2 className="text-xl font-bold mb-4">Select Doctor</h2>
+                        <select
+                            value={selectedDoctor}
+                            onChange={(e) => setSelectedDoctor(e.target.value)}
+                            className="border border-gray-300 rounded-md mb-4 p-2 block w-full"
+                        >
+                            <option value="">Select Doctor</option>
+                            {doctorsList.map(doctor => (
+                                <option key={doctor.id} value={doctor.id}>{doctor.doctorName}</option>
+                            ))}
+                        </select>
+                        <button className="bg-blue-500 text-white px-4 py-2 mr-2" onClick={handleAssignDoctor}>Assign Doctor</button>
+                        <button className="bg-gray-300 text-gray-700 px-4 py-2" onClick={handleCancelAssignDoctor}>Cancel</button>
                     </div>
                 </div>
             )}

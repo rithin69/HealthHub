@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector } from 'react-redux';
-import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, query, where, Timestamp } from 'firebase/firestore';
 import { firestore } from '../utils/Firebase';
 import AppointmentList from '../Components/AppointmentList';
 import ProfileModal from '../Components/ProfileModal';
@@ -13,7 +13,7 @@ import ProfileModal from '../Components/ProfileModal';
 
 const Hospitals = () => {
     const [profileModalOpen, setProfileModalOpen] = useState(false);
-    
+
     const [appointments, setAppointments] = useState([]);
 
     const [hospitals, setHospitals] = useState([]);
@@ -44,6 +44,73 @@ const Hospitals = () => {
 
     const [isModalOpen1, setIsModalOpen1] = useState(false);
 
+    const [medicalHistory, setMedicalHistory] = useState(null);
+
+    const [medHisBookConfirm, setMedHisBookConfirm] = useState(false);
+
+
+
+    const convertFirestoreTimestampToDate = (timestamp) => {
+        return timestamp ? new Date(timestamp.seconds * 1000) : new Date();
+    };
+
+
+    const fetchMedicalHistoryAndBookingStatus = async () => {
+        if (currentUser?.uid) {
+            const patientDocRef = doc(firestore, 'patient', currentUser.uid);
+            const docSnap = await getDoc(patientDocRef);
+    
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                console.log("Original Data:", data.medicalHistory);
+    
+                if (Array.isArray(data.medicalHistory) && data.medicalHistory.length > 0) {
+                    const convertedHistory = data.medicalHistory.map((entry, index) => {
+                        console.log(`Entry ${index} before conversion:`, entry);
+                        
+                        if (entry instanceof Timestamp) { // Check if entry is a Timestamp
+                            const date = convertFirestoreTimestampToDate(entry);
+                            console.log(`Converted Date ${index}:`, date);
+                            const condition = entry[1] || ''; // Check if condition exists, if not set to empty string
+                            const notes = entry[2] || ''; // Check if notes exist, if not set to empty string
+                            return [date, condition, notes]; // Construct array with date, condition, and notes
+                        } else {
+                            console.log(`Skipping conversion for entry ${index} as it is not a Timestamp.`);
+                            return entry; // Return other types unchanged
+                        }
+                    });
+    
+                    console.log("Converted History:", convertedHistory);
+                    setMedicalHistory(convertedHistory);
+                } else {
+                    console.log("No medical history data or not in expected format");
+                    setMedicalHistory([]);
+                }
+            } else {
+                console.log("Document does not exist for the provided UID:", currentUser.uid);
+            }
+        } else {
+            console.log("currentUser.uid is undefined");
+        }
+    };
+    
+
+
+
+
+
+    useEffect(() => {
+        if (currentUser?.uid) {
+            fetchMedicalHistoryAndBookingStatus();
+            console.log(medicalHistory)
+        } else {
+            console.log("Effect skipped because currentUser.uid is undefined");
+        }
+    }, [currentUser?.uid]);
+
+
+
+
     const toggleModal = () => {
         console.log("Toggling modal");
         setIsModalOpen1(!isModalOpen1);
@@ -57,8 +124,9 @@ const Hospitals = () => {
         setProfileModalOpen(!profileModalOpen);
     };
 
-    
-    
+
+
+
     useEffect(() => {
         const fetchHospitals = async () => {
             localStorage.setItem('userUID', currentUser.uid || "sadasdasd");
@@ -142,7 +210,7 @@ const Hospitals = () => {
 
             fetchAppointments();
         }
-    }, [bookingConfirmed,showBookingForm, currentUser?.uid]);
+    }, [bookingConfirmed, showBookingForm, currentUser?.uid]);
 
     const handleRegisterClick = async (hospitalId) => {
         if (!currentUser?.uid) return;
@@ -197,19 +265,19 @@ const Hospitals = () => {
             console.log(currentUser.uid)
             // Check if any document is returned by the query
             // if (!querySnapshot1.empty) {
-                // Access the first document in the query results
-                const registrationData1 = querySnapshot1.docs[0].data();
+            // Access the first document in the query results
+            const registrationData1 = querySnapshot1.docs[0].data();
 
-                
-                // Access the patientName field from the document data
-                const patientName = registrationData1.fullName;
-                const patientemailid=registrationData1.email;
-                
-                // console.log(patientName);
+
+            // Access the patientName field from the document data
+            const patientName = registrationData1.fullName;
+            const patientemailid = registrationData1.email;
+
+            // console.log(patientName);
             // } else {
-                // console.log("No document found for the current user ID.");
+            // console.log("No document found for the current user ID.");
             // }
-            
+
 
             await addDoc(bookingRef, {
                 appointmentDate: formattedDate,
@@ -218,8 +286,8 @@ const Hospitals = () => {
                 PatientPracticeregistrationId: registrationDoc.id,
                 bookingconfirmed: "Pending",
                 patientId: currentUser.uid,
-                patientName:patientName,
-                patientemailid:patientemailid
+                patientName: patientName,
+                patientemailid: patientemailid
             });
 
             setBookingConfirmed(true);
@@ -252,19 +320,19 @@ const Hospitals = () => {
     return (
         <div className="relative">
             <div className="flex justify-end">
-    <button
-        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out"
-        onClick={toggleProfileModal}
-    >
-        ☰ Edit Profile
-    </button>
-</div>
-            
+                <button
+                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out"
+                    onClick={toggleProfileModal}
+                >
+                    ☰ Edit Profile
+                </button>
+            </div>
+
             {/* <button onClick={toggleProfileModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out">Edit Profile</button> */}
             <ProfileModal isOpen={profileModalOpen} closeModal={toggleProfileModal} />
 
 
-            
+
 
             {registrationRequest === 'Rejected' ? (
                 <h1 className="text-2xl font-semibold text-center mb-4 text-red-500">Sorry, your Registration Request got Rejected.</h1>
@@ -314,13 +382,48 @@ const Hospitals = () => {
                                     onClick={handleBookingConfirmation1}
                                     className={`w-full bg-green-500 text-white text-sm px-6 py-3 hover:bg-green-700 transition-colors ${bookingButtonDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                    Book Appointment Again
+                                    {bookingConfirmed ? "Book Appointment Again" : "Book Appointment"}
                                 </button>
                             </div>
                         )}
                     </div>
                 ))}
             </div>
+
+            {/* {!medHisBookConfirm
+                && (
+                    <div className="w-1/3 fixed right-0 top-0 h-full bg-white overflow-auto p-4 shadow-lg">
+                        <h2 className="text-lg font-semibold mb-3">Medical History</h2>
+                        <ul>
+                            {medicalHistory.map((item, index) => (
+                                <li key={index} className="mb-2">
+                                    Date: {item[0].toLocaleDateString()} - Condition: {item[1] && item[1]} - Notes: {item[2] && item[2]}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )} */}
+{medicalHistory && medicalHistory.length > 0 && (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+    <div className="absolute top-20 right-1/2 h-1/4 w-52 border bg-gray-200 shadow-lg rounded-lg justify-center">
+        <div className="bg-green-500 rounded-t-lg p-2">
+            <h1 className="font-bold">Medical History</h1>
+        </div>
+        <p className="text-lg mb-2">Date: {medicalHistory[0][0].toLocaleDateString()}</p>
+        <p className="text-base mb-2">Condition: {medicalHistory[0][1] || 'N/A'}</p>
+        <p className="text-base mb-2">Notes: {medicalHistory[0][2] || 'N/A'}</p>
+    </div>
+</div>
+
+)}
+
+
+
+
+
+
+
+
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-5 rounded-lg max-w-md mx-auto">
@@ -330,7 +433,7 @@ const Hospitals = () => {
                 </div>
             )}
 
-            {isRegistered && registrationRequest === 'Approved' &&  (
+            {isRegistered && registrationRequest === 'Approved' && (
                 <>
 
 
@@ -360,7 +463,7 @@ const Hospitals = () => {
                     <AppointmentList appointments={appointments} />
 
                 </>
-                
+
             )}
         </div>
     );
