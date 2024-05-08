@@ -493,6 +493,9 @@ import 'firebase/compat/firestore';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc } from 'firebase/firestore';
 import { firestore } from '../utils/Firebase';
 import axios from 'axios';
+import { Timestamp } from 'firebase/firestore';
+import DatePicker from 'react-datepicker'; // Import DatePicker component
+import 'react-datepicker/dist/react-datepicker.css'; // Import date picker styles
 //import { ToastContainer, toast } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
 
@@ -523,6 +526,8 @@ function Doctor() {
     medication: '',
     dosage: '',
     instructions: '',
+    medicalTests: [],
+
   });
 
   const [medicalHistoryForm, setMedicalHistoryForm] = useState({
@@ -530,6 +535,8 @@ function Doctor() {
     condition: '',
     notes: '',
   });
+
+  const scheduledDate = Timestamp.fromDate(selectedDate);
 
   // useEffect(() => {
   //   const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
@@ -683,6 +690,15 @@ if (user) {
         issueDate: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
+        //for medical test
+        medicalTests: [ // Add medical tests data
+          {
+            testName: prescriptionForm.testName,
+            testDetails: prescriptionForm.testDetails,
+            //testScheduledDate: prescriptionForm.testScheduledDate,
+            testScheduledDate: testScheduledDate, // Use selected test scheduled date
+          }
+        ],
       };
       await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
       // Send prescription email to patient
@@ -693,6 +709,9 @@ if (user) {
           medication: '',
           dosage: '',
           instructions: '',
+          testName: '', // Clear test fields
+          testDetails: '',
+          testScheduledDate: '',
       });
 
       // // Email prescription
@@ -713,7 +732,9 @@ if (user) {
                 Medication: ${prescriptionData.medication}
                 Dosage: ${prescriptionData.dosage}
                 Instructions: ${prescriptionData.instructions}
-                Issue Date: ${prescriptionData.issueDate}`
+                Issue Date: ${prescriptionData.issueDate}
+                Suggested Tests: ${prescriptionData.testName}
+                Scheduled Test date: ${prescriptionData.testScheduledDate}`
             });
             console.log(response.data);
         } catch (error) {
@@ -730,6 +751,9 @@ if (user) {
         medication: '',
         dosage: '',
         instructions: '',
+        testName: '', // Clear test fields
+        testDetails: '',
+        testScheduledDate: '',
       });
     } catch (error) {
       console.error('Error submitting prescription:', error);
@@ -858,6 +882,16 @@ if (user) {
             <input type="text" name="medication" placeholder="Medication" value={prescriptionForm.medication} onChange={handlePrescriptionFormChange} />
             <input type="text" name="dosage" placeholder="Dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} />
             <input type="text" name="instructions" placeholder="Instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} />
+             {/* Medical tests fields */}
+             <input type="text" name="testName" placeholder="Test Name" value={prescriptionForm.testName} onChange={handlePrescriptionFormChange} />
+            <input type="text" name="testDetails" placeholder="Test Details" value={prescriptionForm.testDetails} onChange={handlePrescriptionFormChange} />
+            {/* <input type="text" name="testScheduledDate" placeholder="Test Scheduled Date" value={prescriptionForm.testScheduledDate} onChange={handlePrescriptionFormChange} /> */}
+            {/* Use DatePicker component for selecting test scheduled date */}
+        <DatePicker
+          selected={testScheduledDate}
+          onChange={(date) => setTestScheduledDate(date)}
+          placeholderText="Test Scheduled Date"
+        />
             <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Prescription</button>
           </form>
         </div>
