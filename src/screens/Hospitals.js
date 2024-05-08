@@ -314,7 +314,7 @@ const Hospitals = () => {
                                     onClick={handleBookingConfirmation1}
                                     className={`w-full bg-green-500 text-white text-sm px-6 py-3 hover:bg-green-700 transition-colors ${bookingButtonDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                    Book Appointment Again
+                                    {bookingConfirmed ? "Book Appointment Again" : "Book Appointment"}
                                 </button>
                             </div>
                         )}
