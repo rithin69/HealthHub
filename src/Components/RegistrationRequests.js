@@ -81,18 +81,18 @@ const RegistrationRequests = () => {
 
   return (
     <div className="bg-gray-100 flex flex-col items-center">
-      <div className="container mx-auto py-8 px-8">
+      <div className="bg-gray-300 border rounded-lg shadow-sm container mx-auto py-8 px-8">
         <h3 className="text-3xl font-bold text-center mb-8">Registration Requests</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border rounded-lg shadow-sm">
             {/* Table header */}
             <thead className="bg-gray-200 text-gray-700 uppercase ">
               <tr className="text-left">
-                <th className="px-6 py-3">Patient Name</th> 
-                <th className="px-6 py-3">Practice Name</th> 
-                <th className="px-6 py-3">Registration Date and Time</th> 
-                <th className="px-6 py-3">Registration Status</th> 
-                <th className="px-6 py-3">Actions</th> 
+                <th className="px-6 py-3 w-1/4">Patient Name</th> 
+                <th className="px-6 py-3 w-1/4">Practice Name</th> 
+                <th className="px-6 py-3 w-1/4">Registration Date and Time</th> 
+                <th className="px-6 py-3 w-1/4">Actions</th> 
+                <th className="px-6 py-3 w-1/4">Status</th> 
               </tr>
             </thead>
             {/* Table body */}

@@ -13,6 +13,7 @@ const AddDoctorModal = ({ onClose }) => {
     createdAt: new Date()  
   });
   const [practices, setPractices] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     // Fetch practices from Firestore
@@ -37,7 +38,7 @@ const AddDoctorModal = ({ onClose }) => {
     e.preventDefault();
     try {
       await addDoc(collection(firestore, 'doctors'), doctorForm);
-      console.log('Doctor added successfully:', doctorForm);
+      setSuccessMessage('Doctor registered successfully.');
       // Clear doctor form fields
       setDoctorForm({
         doctorName: '',
@@ -49,6 +50,11 @@ const AddDoctorModal = ({ onClose }) => {
         specialization: '',
         createdAt: new Date()
       });
+      // Close the modal after a delay
+      setTimeout(() => {
+        onClose();
+        setSuccessMessage('');
+      }, 2000);
     } catch (error) {
       console.error('Error adding doctor:', error);
     }
@@ -66,6 +72,9 @@ const AddDoctorModal = ({ onClose }) => {
             <div className="sm:flex sm:items-start">
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Doctor</h3>
+                {successMessage && (
+                  <div className="bg-green-200 text-green-700 px-4 py-2 rounded mb-4">{successMessage}</div>
+                )}
                 <form onSubmit={handleAddDoctor}>
                   <div className="grid grid-cols-2 gap-4">
                     <div>

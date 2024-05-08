@@ -131,8 +131,7 @@ useEffect(() => {
     try {
       const patientsQuery = query(
         collection(firestore, 'patient'),
-        //where('doctorId', '==', user?.uid)
-        where('patientName', '==', prescriptionForm.patientName) // Use the patient's name captured from the form
+        where('doctorId', '==', user?.uid)
       );
       const patientsSnapshot = await getDocs(patientsQuery);
       const patientsData = patientsSnapshot.docs.map((doc) => ({
@@ -150,8 +149,8 @@ useEffect(() => {
 if (user) {
       fetchPatients();
     }
-  }, [user, prescriptionForm.patientName]);
- 
+  }, [user]);
+
   useEffect(() => {
     fetchAppointments();
     //fetchPatients();
@@ -270,7 +269,7 @@ if (user) {
     const patientsQuery = query(
       collection(firestore, 'patient'),
       where('patientName', '==', patientName),
-      //where('doctorId', '==', user?.uid),
+      where('doctorId', '==', user?.uid),
     );
     const querySnapshot = await getDocs(patientsQuery);
     if (!querySnapshot.empty) {
@@ -339,7 +338,8 @@ if (user) {
               ))}
             </div>
           )}
-        </div> */}
+
+        </div>
  
         <div className="container mx-auto">
           <h1 className="text-2xl font-bold mb-4">Prescription Form</h1>

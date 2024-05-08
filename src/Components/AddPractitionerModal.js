@@ -13,6 +13,7 @@ const AddPractitionerModal = ({ onClose }) => {
     practiceid: ''
   });
   const [practices, setPractices] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const fetchPractices = async () => {
@@ -44,6 +45,7 @@ const AddPractitionerModal = ({ onClose }) => {
     e.preventDefault();
     try {
       await addDoc(collection(firestore, 'practitioner'), practitionerForm);
+      setSuccessMessage('Practitioner registered successfully.');
       console.log('Practitioner added successfully:', practitionerForm);
       // Clear practitioner form fields
       setPractitionerForm({
@@ -55,6 +57,10 @@ const AddPractitionerModal = ({ onClose }) => {
         degree: '',
         practiceid: '',
       });
+      setTimeout(() => {
+        onClose();
+        setSuccessMessage('');
+      }, 2000);      
     } catch (error) {
       console.error('Error adding practitioner:', error);
     }
@@ -72,6 +78,9 @@ const AddPractitionerModal = ({ onClose }) => {
             <div className="sm:flex sm:items-start">
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Practitioner</h3>
+                {successMessage && (
+                  <div className="bg-green-200 text-green-700 px-4 py-2 rounded mb-4">{successMessage}</div>
+                )}
                 <form onSubmit={handleAddPractitioner}>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
