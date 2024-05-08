@@ -488,9 +488,11 @@
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+//import { firestore, auth } from '../utils/Firebase';
 import 'firebase/compat/firestore';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc } from 'firebase/firestore';
 import { firestore } from '../utils/Firebase';
+import axios from 'axios';
 //import { ToastContainer, toast } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
 
@@ -522,6 +524,7 @@ function Doctor() {
     dosage: '',
     instructions: '',
   });
+
   const [medicalHistoryForm, setMedicalHistoryForm] = useState({
     patientName: '',
     condition: '',
@@ -585,7 +588,9 @@ function Doctor() {
 
   const fetchData = async () => {
     try {
-      const q = query(collection(firestore, 'appointment_booking'), where('bookingconfirmed', '==', 'Pending'));
+      const q = query(collection(firestore, 'appointment_booking'), where('bookingconfirmed', '==', 'Pending')
+        
+      );
       const querySnapshot = await getDocs(q);
       const appointmentData = await Promise.all(querySnapshot.docs.map(async (appointmentDoc) => {
         const appointment = appointmentDoc.data();
@@ -621,6 +626,8 @@ useEffect(() => {
         ...doc.data(),
       }));
       setPatients(patientsData);
+
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching patients:', error);
     }
@@ -649,13 +656,52 @@ if (user) {
     try {
       const prescriptionData = {
         ...prescriptionForm,
+        doctorId: user.uid,
         issueDate: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
+      // Send prescription email to patient
+      await sendPrescriptionEmail(prescriptionData);
+      // Clear the prescription form fields
+      setPrescriptionForm({
+          patientName: '',
+          medication: '',
+          dosage: '',
+          instructions: '',
+      });
+
+      // // Email prescription
+      // const response = await axios.post('http://localhost:5000/send-email', {
+      //   to: prescriptionForm.patientEmail, // Patient's email address
+      //   subject: 'Prescription', // Email subject
+      //   text: `Dear ${prescriptionForm.patientName},\n\nHere is your prescription:\n\nMedication: ${prescriptionForm.medication}\nDosage: ${prescriptionForm.dosage}\nInstructions: ${prescriptionForm.instructions}\n\nPlease follow the instructions carefully. If you have any questions, feel free to contact us.\n\nSincerely,\n${doctorName}` // Email body
+      // });
+
+      // console.log('Email sent:', response.data);
+
+      const sendPrescriptionEmail = async (prescriptionData) => {
+        try {
+            const response = await axios.post('http://localhost:5000/send-email', {
+                to: prescriptionData.patientEmail,
+                subject: 'Prescription Details',
+                text: `Dear ${prescriptionData.patientName}, Here are your prescription details:
+                Medication: ${prescriptionData.medication}
+                Dosage: ${prescriptionData.dosage}
+                Instructions: ${prescriptionData.instructions}
+                Issue Date: ${prescriptionData.issueDate}`
+            });
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error sending prescription email:', error);
+        }
+      };
+      
       console.log('Prescription submitted successfully');
       //toast.success('Prescription details updated successfully!');
+
+
       setPrescriptionForm({
         patientName: '',
         medication: '',
