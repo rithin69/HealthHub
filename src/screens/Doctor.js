@@ -1,4 +1,5 @@
 
+ 
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
@@ -45,7 +46,6 @@ function Doctor() {
     notes: '',
   });
  
->>>>>>> f403c202e835e620a6ade62248a67ed4f37af806
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
@@ -88,10 +88,10 @@ function Doctor() {
     try {
       const appointmentsQuery = query(
         collection(firestore, 'appointment_booking'),
-        where('doctorId', '==', user.uid),
+        where('assigneddoctorid', '==', user.uid),
         //where('patientId', '==', patientId),
         //where('practiceId', '==', user?.uid),,
-        where('bookingconfirmed', '==', true)
+        where('bookingconfirmed', '==', "Approved")
       );
       const appointmentsSnapshot = await getDocs(appointmentsQuery);
       const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({
@@ -103,6 +103,12 @@ function Doctor() {
       console.error('Error fetching appointments:', error);
     }
   };
+ 
+  useEffect(() => {
+    if (user) {
+      fetchAppointments();
+    }
+  }, [user]);
  
   const fetchData = async () => {
     try {
@@ -294,8 +300,6 @@ if (user) {
     return null;
   };
  
- 
- 
   const handleAccept = async (id) => {
     try {
       await updateDoc(doc(firestore, 'appointment_booking', id), { bookingconfirmed: 'Approved' });
@@ -315,10 +319,12 @@ if (user) {
   };
  
   return (
+    
     <div className="flex flex-col min-h-screen">
+      
       <header className="bg-blue-500 text-white py-4 px-6">
         <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
-        <h2 className="text-xl font-bold">Welcome, Dr. {doctorName}</h2>
+        <h2 className="text-xl font-bold">Welcome, Dr. Andrew</h2>
       </header>
  
       {/* <ToastContainer
@@ -335,20 +341,20 @@ if (user) {
  
       <main className="flex-grow p-6">
         <div className="container mx-auto">
-          <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
+          <h1 className="text-2xl font-bold mb-4">Appointments</h1>
           {loading ? (
             <p>Loading...</p>
           ) : (
             <div className="grid grid-cols-4 gap-4">
               {appointments.map(appointment => (
-                <div key={appointment.id} className="border p-4">
+                <div key={appointment.id} className="border p-4 bg-slate-300 ">
                   <p><strong>Patient Name:</strong> {appointment.patientName}</p>
-                  <p><strong>Appointment Date:</strong> {appointment.appointmentDate}</p>
+                  <p><strong>Patient Email:</strong> {appointment.patientemailid}</p>
                   <p><strong>Consulting Service:</strong> {appointment.consultingService}</p>
-                  <p><strong>Hospital Name:</strong> {appointment.hospitalName}</p>
+                  <p><strong>Appointment Date:</strong> {appointment.appointmentDate}</p>
                   <div className="flex mt-4">
-                    <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
-                    <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button>
+                    {/* <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button> */}
+                    {/* <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button> */}
                   </div>
                 </div>
               ))}

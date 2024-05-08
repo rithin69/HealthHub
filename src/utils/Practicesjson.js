@@ -10,7 +10,7 @@ const hospital = [
   {
     "practiceid":"2",
     "name": "Manchester Royal Infirmary",
-    "image": "https://www.banyards.co.uk/app/uploads/2023/02/manchester-royal-infirmary-banner-1920x1080.jpg",
+    "image": "https://img.freepik.com/free-vector/people-walking-sitting-hospital-building-city-clinic-glass-exterior-flat-vector-illustration-medical-help-emergency-architecture-healthcare-concept_74855-10130.jpg",
     "address": "Oxford Rd, Manchester M13 9WL, United Kingdom",
     "city": "Manchester",
     "services": ["Trauma Care", "Pediatric Services", "Orthopedics", "Renal Medicine", "Dermatology", "General Practice"]
