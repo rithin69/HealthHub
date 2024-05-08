@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
@@ -6,9 +7,6 @@ import 'firebase/compat/firestore';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc } from 'firebase/firestore';
 import { firestore } from '../utils/Firebase';
 import axios from 'axios';
-import { Timestamp } from 'firebase/firestore';
-import DatePicker from 'react-datepicker'; // Import DatePicker component
-import 'react-datepicker/dist/react-datepicker.css'; // Import date picker styles
 //import { ToastContainer, toast } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
  
@@ -39,8 +37,6 @@ function Doctor() {
     medication: '',
     dosage: '',
     instructions: '',
-    medicalTests: [],
-
   });
  
   const [medicalHistoryForm, setMedicalHistoryForm] = useState({
@@ -48,31 +44,6 @@ function Doctor() {
     condition: '',
     notes: '',
   });
-<<<<<<< HEAD
-
-  const scheduledDate = Timestamp.fromDate(selectedDate);
-
-  // useEffect(() => {
-  //   const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-  //     if (user) {
-  //       setUser(user);
-  //       try {
-  //         //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
-  //         //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.doctorId));
-  //         const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
-  //         const doctorData = doctorDoc.data();
-  //         setDoctorName(doctorData?.doctorName || 'Unknown');
-  //       } catch (error) {
-  //         console.error('Error fetching doctor data:', error);
-  //         setDoctorName('Unknown');
-  //       }
-  //     } else {
-  //       setUser(null);
-  //       setDoctorName('');
-  //     }
-  //   });
-
-=======
  
 >>>>>>> f403c202e835e620a6ade62248a67ed4f37af806
   useEffect(() => {
@@ -117,8 +88,9 @@ function Doctor() {
     try {
       const appointmentsQuery = query(
         collection(firestore, 'appointment_booking'),
-        where('doctorId', '==', user?.uid),
-        where('practiceId', '==', user?.uid),
+        where('doctorId', '==', user.uid),
+        //where('patientId', '==', patientId),
+        //where('practiceId', '==', user?.uid),,
         where('bookingconfirmed', '==', true)
       );
       const appointmentsSnapshot = await getDocs(appointmentsQuery);
@@ -164,7 +136,8 @@ useEffect(() => {
     try {
       const patientsQuery = query(
         collection(firestore, 'patient'),
-        where('doctorId', '==', user?.uid)
+        //where('doctorId', '==', user?.uid)
+        where('patientName', '==', prescriptionForm.patientName) // Use the patient's name captured from the form
       );
       const patientsSnapshot = await getDocs(patientsQuery);
       const patientsData = patientsSnapshot.docs.map((doc) => ({
@@ -182,8 +155,8 @@ useEffect(() => {
 if (user) {
       fetchPatients();
     }
-  }, [user]);
-
+  }, [user, prescriptionForm.patientName]);
+ 
   useEffect(() => {
     fetchAppointments();
     //fetchPatients();
@@ -203,18 +176,10 @@ if (user) {
       const prescriptionData = {
         ...prescriptionForm,
         doctorId: user.uid,
+        //add appointments. patientid
         issueDate: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        //for medical test
-        medicalTests: [ // Add medical tests data
-          {
-            testName: prescriptionForm.testName,
-            testDetails: prescriptionForm.testDetails,
-            //testScheduledDate: prescriptionForm.testScheduledDate,
-            testScheduledDate: testScheduledDate, // Use selected test scheduled date
-          }
-        ],
       };
       await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
       // Send prescription email to patient
@@ -295,6 +260,7 @@ if (user) {
           medicalHistory: firebase.firestore.FieldValue.arrayUnion({
             condition: medicalHistoryForm.condition,
             notes: medicalHistoryForm.notes,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp() // Add current timestamp
           }),
         });
         console.log('Medical history updated successfully');
@@ -319,7 +285,7 @@ if (user) {
     const patientsQuery = query(
       collection(firestore, 'patient'),
       where('patientName', '==', patientName),
-      where('doctorId', '==', user?.uid),
+      //where('doctorId', '==', user?.uid),
     );
     const querySnapshot = await getDocs(patientsQuery);
     if (!querySnapshot.empty) {
@@ -368,7 +334,7 @@ if (user) {
       /> */}
  
       <main className="flex-grow p-6">
-        {/* <div className="container mx-auto">
+        <div className="container mx-auto">
           <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
           {loading ? (
             <p>Loading...</p>
@@ -388,7 +354,6 @@ if (user) {
               ))}
             </div>
           )}
-
         </div>
  
         <div className="container mx-auto">
@@ -398,16 +363,6 @@ if (user) {
             <input type="text" name="medication" placeholder="Medication" value={prescriptionForm.medication} onChange={handlePrescriptionFormChange} />
             <input type="text" name="dosage" placeholder="Dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} />
             <input type="text" name="instructions" placeholder="Instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} />
-             {/* Medical tests fields */}
-             <input type="text" name="testName" placeholder="Test Name" value={prescriptionForm.testName} onChange={handlePrescriptionFormChange} />
-            <input type="text" name="testDetails" placeholder="Test Details" value={prescriptionForm.testDetails} onChange={handlePrescriptionFormChange} />
-            {/* <input type="text" name="testScheduledDate" placeholder="Test Scheduled Date" value={prescriptionForm.testScheduledDate} onChange={handlePrescriptionFormChange} /> */}
-            {/* Use DatePicker component for selecting test scheduled date */}
-        <DatePicker
-          selected={testScheduledDate}
-          onChange={(date) => setTestScheduledDate(date)}
-          placeholderText="Test Scheduled Date"
-        />
             <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Prescription</button>
           </form>
         </div>
