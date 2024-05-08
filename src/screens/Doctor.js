@@ -531,16 +531,38 @@ function Doctor() {
     notes: '',
   });
 
+  // useEffect(() => {
+  //   const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+  //     if (user) {
+  //       setUser(user);
+  //       try {
+  //         //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+  //         //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.doctorId));
+  //         const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+  //         const doctorData = doctorDoc.data();
+  //         setDoctorName(doctorData?.doctorName || 'Unknown');
+  //       } catch (error) {
+  //         console.error('Error fetching doctor data:', error);
+  //         setDoctorName('Unknown');
+  //       }
+  //     } else {
+  //       setUser(null);
+  //       setDoctorName('');
+  //     }
+  //   });
+
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user);
         try {
-          //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
-          //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.doctorId));
-          const doctorDoc = await getDoc(doc(firestore, 'doctors', doctorName));
-          const doctorData = doctorDoc.data();
-          setDoctorName(doctorData?.doctorName || 'Unknown');
+          const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+          if (doctorDoc.exists()) {
+            const doctorData = doctorDoc.data();
+            setDoctorName(doctorData.doctorName || 'Unknown');
+          } else {
+            setDoctorName('Unknown');
+          }
         } catch (error) {
           console.error('Error fetching doctor data:', error);
           setDoctorName('Unknown');
