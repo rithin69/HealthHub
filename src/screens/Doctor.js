@@ -733,6 +733,7 @@ if (user) {
           medicalHistory: firebase.firestore.FieldValue.arrayUnion({
             condition: medicalHistoryForm.condition,
             notes: medicalHistoryForm.notes,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp() // Add current timestamp
           }),
         });
         console.log('Medical history updated successfully');
