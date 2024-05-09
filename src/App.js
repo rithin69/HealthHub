@@ -8,7 +8,7 @@ import Patient from "./screens/Patient"
 import Doctor from "./screens/Doctor";
 import Admin from "./screens/Admin";
 import Practitioner from "./screens/Practitioner";
-
+//app comment
 function App() {
   const appRouter = createBrowserRouter([
     { path: "/", element: <Login /> },
