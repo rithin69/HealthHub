@@ -29,39 +29,50 @@ const Admin = () => {
         {activeTab === 'registrationRequests' && <RegistrationRequests />}
         {activeTab === 'addNew' && (
           <div className="flex flex-col h-full">
-            {/* Main Card: Add Medical Staff */}
+           
             <div className="bg-white rounded-lg shadow p-4 mb-4">
               <h2 className="text-lg font-semibold mb-4">Add Medical Staff</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Sub-Card: Add Doctor */}
+               
                 <div className="bg-gray-100 rounded-lg shadow-sm p-4">
                   <button onClick={() => setShowDoctorModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none w-full">Add Doctor</button>
                 </div>
-                {/* Sub-Card: Add Practitioner */}
+               
                 <div className="bg-gray-100 rounded-lg shadow-sm p-4">
                   <button onClick={() => setShowPractitionerModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none w-full">Add Practitioner</button>
                 </div>
               </div>
             </div>
-            {/* Main Card: Add Medical Provider */}
+           
             <div className="bg-white rounded-lg shadow p-4 mb-4">
               <h2 className="text-lg font-semibold mb-4">Add Medical Provider</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-100 rounded-lg shadow-sm p-4">
-                  {/* Sub-Card: Add Practice */}
+                  
                   <button onClick={() => setShowPracticeModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none w-full">Add Practice</button>
                 </div>
               </div>
             </div>
           </div>
         )}
-        {/* Modals */}
+      
         {showDoctorModal && <AddDoctorModal onClose={() => setShowDoctorModal(false)} />}
         {showPractitionerModal && <AddPractitionerModal onClose={() => setShowPractitionerModal(false)} />}
         {showPracticeModal && <AddPracticeModal onClose={() => setShowPracticeModal(false)} />}
       </div>
+      <div className="flex flex-col min-h-screen">
+    <div className="flex-grow">
+      
     </div>
-  );   
+    <footer className="bg-gray-200 text-gray-900 py-4 px-6 text-center">
+        &copy; {new Date().getFullYear()} Health Hub
+    </footer>
+</div>
+
+
+
+    </div>
+  );
 };
 
 export default Admin;

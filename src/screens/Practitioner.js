@@ -195,6 +195,14 @@ const PractitionerComponent = () => {
                     </div>
                 </div>
             )}
+           <div className="flex flex-col min-h-screen">
+    <div className="flex-grow">
+        {/* All your page content goes here */}
+    </div>
+    <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
+        &copy; {new Date().getFullYear()} Health Hub
+    </footer>
+</div>
     </div>
     );
 };

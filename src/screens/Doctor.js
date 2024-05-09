@@ -1,5 +1,3 @@
-
- 
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
@@ -8,6 +6,9 @@ import 'firebase/compat/firestore';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc } from 'firebase/firestore';
 import { firestore } from '../utils/Firebase';
 import axios from 'axios';
+import { Timestamp } from 'firebase/firestore';
+//import DatePicker from 'react-datepicker'; // Import DatePicker component
+//import 'react-datepicker/dist/react-datepicker.css'; // Import date picker styles
 //import { ToastContainer, toast } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
  
@@ -38,6 +39,8 @@ function Doctor() {
     medication: '',
     dosage: '',
     instructions: '',
+    medicalTests: [],
+ 
   });
  
   const [medicalHistoryForm, setMedicalHistoryForm] = useState({
@@ -45,6 +48,28 @@ function Doctor() {
     condition: '',
     notes: '',
   });
+ 
+  //const scheduledDate = Timestamp.fromDate(selectedDate);
+ 
+  // useEffect(() => {
+  //   const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+  //     if (user) {
+  //       setUser(user);
+  //       try {
+  //         //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+  //         //const doctorDoc = await getDoc(doc(firestore, 'doctors', user.doctorId));
+  //         const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+  //         const doctorData = doctorDoc.data();
+  //         setDoctorName(doctorData?.doctorName || 'Unknown');
+  //       } catch (error) {
+  //         console.error('Error fetching doctor data:', error);
+  //         setDoctorName('Unknown');
+  //       }
+  //     } else {
+  //       setUser(null);
+  //       setDoctorName('');
+  //     }
+  //   });
  
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
@@ -54,7 +79,7 @@ function Doctor() {
           const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
           if (doctorDoc.exists()) {
             const doctorData = doctorDoc.data();
-            setDoctorName(doctorData.doctorName || 'Unknown');
+            setDoctorName(doctorData.doctorName || 'Dr. Andrew');
           } else {
             setDoctorName('Unknown');
           }
@@ -88,10 +113,10 @@ function Doctor() {
     try {
       const appointmentsQuery = query(
         collection(firestore, 'appointment_booking'),
-        where('assigneddoctorid', '==', user.uid),
+        where('doctorId', '==', user.uid),
         //where('patientId', '==', patientId),
         //where('practiceId', '==', user?.uid),,
-        where('bookingconfirmed', '==', "Approved")
+        where('bookingconfirmed', '==', true)
       );
       const appointmentsSnapshot = await getDocs(appointmentsQuery);
       const appointmentsData = appointmentsSnapshot.docs.map((doc) => ({
@@ -103,12 +128,6 @@ function Doctor() {
       console.error('Error fetching appointments:', error);
     }
   };
- 
-  useEffect(() => {
-    if (user) {
-      fetchAppointments();
-    }
-  }, [user]);
  
   const fetchData = async () => {
     try {
@@ -186,6 +205,15 @@ if (user) {
         issueDate: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
+        //for medical test
+        medicalTests: [ // Add medical tests data
+          {
+            testName: prescriptionForm.testName,
+            testDetails: prescriptionForm.testDetails,
+            //testScheduledDate: prescriptionForm.testScheduledDate,
+            testScheduledDate: prescriptionForm.testScheduledDate, // Use selected test scheduled date
+          }
+        ],
       };
       await addDoc(collection(firestore, 'prescriptions'), prescriptionData);
       // Send prescription email to patient
@@ -300,6 +328,8 @@ if (user) {
     return null;
   };
  
+ 
+ 
   const handleAccept = async (id) => {
     try {
       await updateDoc(doc(firestore, 'appointment_booking', id), { bookingconfirmed: 'Approved' });
@@ -319,9 +349,7 @@ if (user) {
   };
  
   return (
-    
     <div className="flex flex-col min-h-screen">
-      
       <header className="bg-blue-500 text-white py-4 px-6">
         <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
         <h2 className="text-xl font-bold">Welcome, Dr. Andrew</h2>
@@ -361,6 +389,28 @@ if (user) {
             </div>
           )}
         </div>
+{/* has context menu
+        <div className="container mx-auto">
+          <h1 className="text-2xl font-bold mb-4">Pending Appointments</h1>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <div className="grid grid-cols-4 gap-4">
+              {appointments.map(appointment => (
+                <div key={appointment.id} className="border p-4">
+                  <p><strong>Patient Name:</strong> {appointment.patientName}</p>
+                  <p><strong>Appointment Date:</strong> {appointment.appointmentDate}</p>
+                  <p><strong>Consulting Service:</strong> {appointment.consultingService}</p>
+                  <p><strong>Hospital Name:</strong> {appointment.hospitalName}</p>
+                  <div className="flex mt-4">
+                    <button onClick={() => handleAccept(appointment.id)} className="bg-green-500 text-white px-4 py-2 mr-2">Accept</button>
+                    <button onClick={() => handleReject(appointment.id)} className="bg-red-500 text-white px-4 py-2">Reject</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div> */}
  
         <div className="container mx-auto">
           <h1 className="text-2xl font-bold mb-4">Prescription Form</h1>
@@ -369,6 +419,16 @@ if (user) {
             <input type="text" name="medication" placeholder="Medication" value={prescriptionForm.medication} onChange={handlePrescriptionFormChange} />
             <input type="text" name="dosage" placeholder="Dosage" value={prescriptionForm.dosage} onChange={handlePrescriptionFormChange} />
             <input type="text" name="instructions" placeholder="Instructions" value={prescriptionForm.instructions} onChange={handlePrescriptionFormChange} />
+             {/* Medical tests fields */}
+             <input type="text" name="testName" placeholder="Test Name" value={prescriptionForm.testName} onChange={handlePrescriptionFormChange} />
+            <input type="text" name="testDetails" placeholder="Test Details" value={prescriptionForm.testDetails} onChange={handlePrescriptionFormChange} />
+            <input type="text" name="testScheduledDate" placeholder="Test Scheduled Date" value={prescriptionForm.testScheduledDate} onChange={handlePrescriptionFormChange} />
+            {/* Use DatePicker component for selecting test scheduled date */}
+        {/* <DatePicker
+          selected={testScheduledDate}
+          onChange={(date) => setTestScheduledDate(date)}
+          placeholderText="Test Scheduled Date"
+        /> */}
             <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Prescription</button>
           </form>
         </div>

@@ -409,19 +409,32 @@ const Hospitals = () => {
                         </ul>
                     </div>
                 )} */}
+{/* {console.log(medicalHistory)} */}
 {medicalHistory && medicalHistory.length > 0 && (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-    <div className="absolute top-20 right-1/2 h-1/4 w-52 border bg-gray-200 shadow-lg rounded-lg justify-center">
-        <div className="bg-green-500 rounded-t-lg p-2">
-            <h1 className="font-bold">Medical History</h1>
+    <div className="absolute top-20 left-2/3 transform -translate-x-1/2 w-full max-w-4xl px-4">
+        <div className="border bg-gray-200 shadow-lg rounded-lg p-4">
+            <div className="bg-green-500 rounded-t-lg p-2">
+                <h1 className="font-bold text-white">Medical History</h1>
+            </div>
+            <div className="space-y-2">
+                <div>
+                    <span className="font-bold text-gray-600">Date:</span>
+                    <p className="text-base">{medicalHistory[0][0].toLocaleDateString()}</p>
+                </div>
+                <div>
+                    <span className="font-bold text-gray-600">Condition:</span>
+                    <p className="text-base">{medicalHistory[1] || 'N/A'}</p>
+                </div>
+                <div>
+                    <span className="font-bold text-gray-600">Notes:</span>
+                    <p className="text-base">{medicalHistory[2] || 'N/A'}</p>
+                </div>
+            </div>
         </div>
-        <p className="text-lg mb-2">Date: {medicalHistory[0][0].toLocaleDateString()}</p>
-        <p className="text-base mb-2">Condition: {medicalHistory[0][1] || 'N/A'}</p>
-        <p className="text-base mb-2">Notes: {medicalHistory[0][2] || 'N/A'}</p>
     </div>
-</div>
-
 )}
+
+{/* )} */}
 
 
 
@@ -471,6 +484,15 @@ const Hospitals = () => {
                 </>
 
             )}
+            <div className="flex flex-col min-h-screen">
+    <div className="flex-grow">
+        {/* All your page content goes here */}
+    </div>
+    <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
+        &copy; {new Date().getFullYear()} Health Hub
+    </footer>
+</div>
+
         </div>
     );
 };
