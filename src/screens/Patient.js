@@ -9,7 +9,7 @@ function Patient() {
     useEffect(() => {
         // console.log(hospital);
         createHospitalDocuments(hospital);
-    }, []); // Empty dependency array ensures this effect only runs once after the initial render
+    }, []); 
 
     return (
         <>

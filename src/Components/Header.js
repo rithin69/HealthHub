@@ -8,7 +8,7 @@ import { addUser, removeUser } from "../utils/Userslice";
 import { Home, LogOut } from "lucide-react";
 import { useLocation } from 'react-router-dom';
 
-// import mobileLogo from "../assets/mobileLogo.png";
+
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -21,8 +21,7 @@ const Header = () => {
       if (user) {
         const { uid, email, displayName } = user;
         dispatch(addUser({ uid: uid, email: email, displayName: displayName }));
-        // console.log(uid,email,displayName);
-        // navigate("/patient");
+     
       } else {
         dispatch(removeUser());
         navigate("/");
@@ -34,7 +33,7 @@ const Header = () => {
     signOut(auth)
       .then(() => {})
       .catch((error) => {
-        // An error happened.
+    
       });
   };
   return (
@@ -44,7 +43,7 @@ const Header = () => {
         className="hidden cursor-pointer md:block md:w-56"
         src={LOGO_URL}
         alt="Logo"
-        // onClick={handleLogoClick}
+     
       />
 
       

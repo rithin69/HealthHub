@@ -16,7 +16,7 @@ const AddDoctorModal = ({ onClose }) => {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    // Fetch practices from Firestore
+   
     const fetchPractices = async () => {
       const practiceCollection = collection(firestore, 'practice');
       const practiceSnapshot = await getDocs(practiceCollection);
@@ -39,7 +39,7 @@ const AddDoctorModal = ({ onClose }) => {
     try {
       await addDoc(collection(firestore, 'doctors'), doctorForm);
       setSuccessMessage('Doctor registered successfully.');
-      // Clear doctor form fields
+   
       setDoctorForm({
         doctorName: '',
         email: '',

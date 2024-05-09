@@ -86,30 +86,29 @@ const PractitionerComponent = () => {
 
     const handleSendMail1 = async () => {
         try {
-            // Make a POST request to the backend server endpoint to send email
+            
             const response = await axios.post('https://healthhubbackend-5ffw.onrender.com/send-email', {
                 to: testpatientEmail,
                 subject: 'Test Results',
                 text: `Dear patient, your test results are as follows: ${testResults}`
             });
-            console.log(response.data); // Log success message
+            console.log(response.data); 
     
-            // Query patient collection to find the document with matching email
+            
             const patientQuery = query(collection(firestore, 'patient'), where('email', '==', testpatientEmail));
             const querySnapshot = await getDocs(patientQuery);
     
-            // Check if a document with matching email exists
             if (!querySnapshot.empty) {
-                // Get the document reference
+               
                 const patientDocRef = querySnapshot.docs[0].ref;
     
-                // Update the patient document with test results
+                
                 await updateDoc(patientDocRef, { testResults: testResults });
             } else {
                 console.error('Patient with email not found:', testpatientEmail);
             }
     
-            handleTestModalClose(); // Close the modal after sending the email
+            handleTestModalClose(); 
         } catch (error) {
             console.error('Error sending email:', error); // Log any errors
         }
@@ -117,22 +116,22 @@ const PractitionerComponent = () => {
     
     const handleSendMail = async () => {
         try {
-            // Make a POST request to the backend server endpoint
+            
             const response = await axios.post('https://healthhubbackend-5ffw.onrender.com/send-email', {
-                to: patientEmail, // Patient's email address
-                subject: 'New Appointment Date', // Email subject
+                to: patientEmail, // 
+                subject: 'New Appointment Date',
                 text: ` Hii ${appointments[0].patientName},
                  Your new appointment date is ${newAppointmentDate}
 
                  Please feel free to contact us if you have any questions or concerns.
-                 Contact Us: healthhub75@gmail.com` // Email body
+                 Contact Us: healthhub75@gmail.com` 
                 
             });
-           //// console.log(appointments);
-            console.log(response.data); // Log success message
-            handleModalClose(); // Close the modal after sending the email
+          
+            console.log(response.data); 
+            handleModalClose();
         } catch (error) {
-            console.error('Error sending email:', error); // Log any errors
+            console.error('Error sending email:', error); 
         }
     };
     
@@ -197,7 +196,7 @@ const PractitionerComponent = () => {
             )}
            <div className="flex flex-col min-h-screen">
     <div className="flex-grow">
-        {/* All your page content goes here */}
+
     </div>
     <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">
         &copy; {new Date().getFullYear()} Health Hub

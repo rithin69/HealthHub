@@ -68,15 +68,15 @@ const Hospitals = () => {
                     const convertedHistory = data.medicalHistory.map((entry, index) => {
                         console.log(`Entry ${index} before conversion:`, entry);
                         
-                        if (entry instanceof Timestamp) { // Check if entry is a Timestamp
+                        if (entry instanceof Timestamp) { 
                             const date = convertFirestoreTimestampToDate(entry);
                             console.log(`Converted Date ${index}:`, date);
-                            const condition = entry[1] || ''; // Check if condition exists, if not set to empty string
-                            const notes = entry[2] || ''; // Check if notes exist, if not set to empty string
-                            return [date, condition, notes]; // Construct array with date, condition, and notes
+                            const condition = entry[1] || ''; 
+                            const notes = entry[2] || ''; 
+                            return [date, condition, notes]; 
                         } else {
                             console.log(`Skipping conversion for entry ${index} as it is not a Timestamp.`);
-                            return entry; // Return other types unchanged
+                            return entry;
                         }
                     });
     
@@ -116,9 +116,7 @@ const Hospitals = () => {
         setIsModalOpen1(!isModalOpen1);
     };
 
-    // const [calser,setcalser]=useState(false);
-
-    // console.log(bookingButtonDisabled)
+   
 
     const toggleProfileModal = () => {
         setProfileModalOpen(!profileModalOpen);
@@ -158,7 +156,7 @@ const Hospitals = () => {
                         let registrationRequest = registrationData.registrationRequest;
                         setRegistrationRequest(registrationRequest);
 
-                        //setBookingButtonDisabled(registrationRequest === "Pending");
+                        
                     } else {
                         setRegistrationRequest("Pending");
                     }
@@ -190,7 +188,7 @@ const Hospitals = () => {
             };
             fetchServices();
 
-            // Update bookingButtonDisabled state when bookingConfirmed changes
+            
             setBookingButtonDisabled(registrationRequest === "Pending" || !bookingConfirmed);
         }
     }, [isRegistered, selectedHospitalId, bookingConfirmed, registrationRequest]);
@@ -215,7 +213,7 @@ const Hospitals = () => {
     const handleRegisterClick = async (hospitalId) => {
         if (!currentUser?.uid) return;
 
-        // Assuming `currentUser.uid` is correctly fetched from your store
+        
         const userDocRef = doc(firestore, 'patient', currentUser.uid);
         const docSnap = await getDoc(userDocRef);
 
@@ -241,7 +239,6 @@ const Hospitals = () => {
         setSelectedHospitalId(hospitalId);
         setIsRegistered(true);
 
-        // Show the modal
         setIsModalOpen(true);
         setShowBookingForm(true)
     };
@@ -252,31 +249,26 @@ const Hospitals = () => {
         const registrationRef = collection(firestore, 'patient_practice_registration');
         const querySnapshot = await getDocs(query(registrationRef, where("patientId", "==", currentUser.uid)));
 
-        // Ensure we have a registration record to work with
+       
         if (!querySnapshot.empty) {
             const registrationDoc = querySnapshot.docs[0];
-            const formattedDate = selectedDate.toISOString().split('T')[0]; // Format date as you like
+            const formattedDate = selectedDate.toISOString().split('T')[0]; 
 
-            // Create a new document in the 'appointment_booking' collection
+           
             const bookingRef = collection(firestore, 'appointment_booking');
 
             const registrationRef1 = collection(firestore, 'patient');
             const querySnapshot1 = await getDocs(query(registrationRef1, where("PatientId", "==", currentUser.uid)));
             console.log(currentUser.uid)
-            // Check if any document is returned by the query
-            // if (!querySnapshot1.empty) {
-            // Access the first document in the query results
+          
             const registrationData1 = querySnapshot1.docs[0].data();
 
 
-            // Access the patientName field from the document data
+            
             const patientName = registrationData1.fullName;
             const patientemailid = registrationData1.email;
 
-            // console.log(patientName);
-            // } else {
-            // console.log("No document found for the current user ID.");
-            // }
+           
 
 
             await addDoc(bookingRef, {
@@ -292,9 +284,7 @@ const Hospitals = () => {
 
             setBookingConfirmed(true);
             setShowBookingForm(prevState => !prevState);
-            // setcalser(!calser);
-            // setblockappo(false);
-            // Optionally, clear selectedService and selectedDate here or keep them for showing to the user
+           
         }
     };
 
@@ -303,15 +293,7 @@ const Hospitals = () => {
         setShowBookingForm(prevState => !prevState); // Toggle the visibility based on previous state
     };
 
-    // useEffect(() => {
-    //     console.log('showBookingForm updated:', showBookingForm);
-    //     console.log(isRegistered)
-    //     console.log(registrationRequest)
-    //     // === 'Approved' && 
-    //     console.log(bookingConfirmed)
-
-    //     // Additional logging to check updates
-    // }, [showBookingForm, isRegistered, registrationRequest, bookingConfirmed]); // Dependency array to watch changes in showBookingForm
+   
 
 
 
@@ -334,7 +316,6 @@ const Hospitals = () => {
                 </button>
             </div>
 
-            {/* <button onClick={toggleProfileModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow focus:outline-none focus:shadow-outline transform transition-colors duration-150 ease-in-out">Edit Profile</button> */}
             <ProfileModal isOpen={profileModalOpen} closeModal={toggleProfileModal} />
 
 
@@ -396,20 +377,7 @@ const Hospitals = () => {
                 ))}
             </div>
 
-            {/* {!medHisBookConfirm
-                && (
-                    <div className="w-1/3 fixed right-0 top-0 h-full bg-white overflow-auto p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold mb-3">Medical History</h2>
-                        <ul>
-                            {medicalHistory.map((item, index) => (
-                                <li key={index} className="mb-2">
-                                    Date: {item[0].toLocaleDateString()} - Condition: {item[1] && item[1]} - Notes: {item[2] && item[2]}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )} */}
-{/* {console.log(medicalHistory)} */}
+        
 {medicalHistory && medicalHistory.length > 0 && (
     <div className="absolute top-20 left-2/3 transform -translate-x-1/2 w-full max-w-4xl px-4">
         <div className="border bg-gray-200 shadow-lg rounded-lg p-4">

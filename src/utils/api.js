@@ -1,5 +1,4 @@
-import pharmaciesData from './consol_pharmacy_list_202324q3.json'; // Adjust the file path accordingly
-
+import pharmaciesData from './consol_pharmacy_list_202324q3.json';
 export const fetchPharmacies = async () => {
     try {
         return pharmaciesData;

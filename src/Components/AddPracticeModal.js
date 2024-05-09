@@ -11,7 +11,7 @@ const AddPracticeModal = ({ onClose }) => {
       image: '',
       services: ''
     });
-    const [practiceIdCounter, setPracticeIdCounter] = useState(11); // Start from 11
+    const [practiceIdCounter, setPracticeIdCounter] = useState(11); 
     const [successMessage, setSuccessMessage] = useState('');
 
     const modalRef = useRef(null);
@@ -26,8 +26,8 @@ const AddPracticeModal = ({ onClose }) => {
     const handleAddPractice = async (e) => {
       e.preventDefault();
       try {
-        // Add new practice to 'practice' collection
-        const practiceId = practiceIdCounter.toString(); // Convert counter to string
+    
+        const practiceId = practiceIdCounter.toString(); 
         await addDoc(collection(firestore, 'practice'), {
           practiceid: practiceId,
           ...practiceForm,
@@ -36,9 +36,9 @@ const AddPracticeModal = ({ onClose }) => {
         });
         setSuccessMessage('Practice added successfully.');
         console.log('Practice added successfully:', practiceForm);
-        // Increment the practiceIdCounter for the next practice
+       
         setPracticeIdCounter(prevCounter => prevCounter + 1);
-        // Clear practice form fields
+        
         setPracticeForm({
           name: '',
           address: '',

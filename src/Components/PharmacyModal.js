@@ -7,15 +7,15 @@ function PharmacyModal({ onClose }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedPharmacy, setSelectedPharmacy] = useState(null);
-    const [center, setCenter] = useState({ lat: 51.5074, lng: -0.1278 }); // Default to London coordinates
+    const [center, setCenter] = useState({ lat: 51.5074, lng: -0.1278 }); 
     const [currentPage, setCurrentPage] = useState(1);
     const pharmaciesPerPage = 5;
 
     useEffect(() => {
-        // Fetch pharmacies data when component mounts
+        
         fetchPharmacies()
             .then(data => {
-                // Convert addresses or postcodes to coordinates
+               
                 const promises = data.map(pharmacy => fetchCoordinates(pharmacy));
                 Promise.all(promises)
                     .then(results => {
@@ -33,7 +33,7 @@ function PharmacyModal({ onClose }) {
     }, []);
 
     useEffect(() => {
-        // Filter pharmacies based on search term
+   
         setSearchResults(pharmacies.filter(pharmacy =>
             pharmacy.ADDRESS_FIELD1.toLowerCase().includes(searchTerm.toLowerCase()) ||
             pharmacy.ADDRESS_FIELD2.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -48,10 +48,10 @@ function PharmacyModal({ onClose }) {
         const { ADDRESS_FIELD1, ADDRESS_FIELD2, ADDRESS_FIELD3, ADDRESS_FIELD4, POST_CODE } = pharmacy;
         const address = `${ADDRESS_FIELD1}, ${ADDRESS_FIELD2}, ${ADDRESS_FIELD3}, ${ADDRESS_FIELD4}, ${POST_CODE}`;
 
-        // Construct the URL for the Geocoding API request
+      
         const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=AIzaSyAlWCF6E4dmnc7-_7zlYoNw_AifnIZT8Zs`;
 
-        // Fetch data from the Geocoding API
+     
         const response = await fetch(apiUrl);
         const data = await response.json();
 
@@ -82,17 +82,17 @@ function PharmacyModal({ onClose }) {
     };
 
     const handleGetDirections = (pharmacy) => {
-        // Open Google Maps with directions from current location to the selected pharmacy
+      
         const { lat, lng } = pharmacy;
         const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
         window.open(url, '_blank');
     };
 
     const handleSearch = () => {
-        // Construct the URL for the Geocoding API request
+        
         const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchTerm)}&key=AIzaSyAlWCF6E4dmnc7-_7zlYoNw_AifnIZT8Zs`;
 
-        // Fetch data from the Geocoding API
+   
         fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
@@ -101,12 +101,12 @@ function PharmacyModal({ onClose }) {
                 return response.json();
             })
             .then(data => {
-                // Extract latitude and longitude from the API response
+               
                 const { results } = data;
                 if (results && results.length > 0) {
                     const { lat, lng } = results[0].geometry.location;
                     setCenter({ lat, lng });
-                    setSearchTerm(''); // Clear search term after setting the center
+                    setSearchTerm(''); 
                 } else {
                     throw new Error('No results found');
                 }
@@ -139,8 +139,8 @@ function PharmacyModal({ onClose }) {
                         {searchResults.slice(0, 10).map(pharmacy => (
                             <Marker
                                 key={pharmacy["PHARMACY_ODS_CODE_(F-CODE)"]}
-                                lat={pharmacy.lat} // Replace with actual latitude
-                                lng={pharmacy.lng} // Replace with actual longitude
+                                lat={pharmacy.lat} 
+                                lng={pharmacy.lng} 
                                 onClick={() => handlePharmacyClick(pharmacy)}
                             />
                         ))}
@@ -156,7 +156,7 @@ function PharmacyModal({ onClose }) {
                             <button onClick={() => handleGetDirections(pharmacy)} className="bg-blue-500 text-white px-2 py-1 rounded-md">Get Directions</button>
                         </div>
                     ))}
-                    {/* Pagination */}
+                    
                     <div className="mt-4 flex justify-end">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
@@ -190,6 +190,6 @@ function PharmacyModal({ onClose }) {
     );
 }
 
-const Marker = ({ onClick }) => <div onClick={onClick} className="text-red-600 text-xl">&#x1F3E0;</div>; // Pharmacy icon
+const Marker = ({ onClick }) => <div onClick={onClick} className="text-red-600 text-xl">&#x1F3E0;</div>; 
 
 export default PharmacyModal;

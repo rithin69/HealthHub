@@ -47,7 +47,7 @@ const AddPractitionerModal = ({ onClose }) => {
       await addDoc(collection(firestore, 'practitioner'), practitionerForm);
       setSuccessMessage('Practitioner registered successfully.');
       console.log('Practitioner added successfully:', practitionerForm);
-      // Clear practitioner form fields
+      
       setPractitionerForm({
         practitionerName: '',
         email: '',

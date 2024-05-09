@@ -8,7 +8,7 @@ const cors = require('cors');
 const corsOptions = {
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
-    credentials: true, // Enable credentials (cookies, authorization headers) cross-origin
+    credentials: true, 
   };
 
 app.use(express.json());
@@ -26,8 +26,8 @@ app.post('/send-email', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
-                user: 'healthhub75@gmail.com', // Your Gmail email address
-                pass: 'mgco socz tfox yymm' // Your Gmail password
+                user: 'healthhub75@gmail.com', 
+                pass: 'mgco socz tfox yymm' 
             }
         });
 

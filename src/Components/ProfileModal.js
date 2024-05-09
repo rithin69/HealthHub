@@ -15,7 +15,7 @@ const ProfileModal = ({ isOpen, closeModal }) => {
         email: ''
     });
 
-    // Function to convert Firestore Timestamp to JavaScript Date object
+  
     const convertFirestoreTimestampToDate = (timestamp) => {
         return timestamp ? new Date(timestamp.seconds * 1000) : new Date();
     };
@@ -48,7 +48,7 @@ const ProfileModal = ({ isOpen, closeModal }) => {
             const userDocRef = doc(firestore, 'patient', currentUser.uid);
             const updatedData = {
                 ...profileDetails,
-                dob: profileDetails.dob // No need to convert, Firestore handles Date objects directly.
+                dob: profileDetails.dob 
             };
             await updateDoc(userDocRef, updatedData);
             closeModal();
