@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../utils/Firebase';
-import { collection, query, where, getDocs, updateDoc, doc, getDoc,setDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc,setDoc }from 'firebase/firestore';
 import axios from 'axios'; 
 
 const PractitionerComponent = () => {
