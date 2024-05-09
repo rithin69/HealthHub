@@ -87,7 +87,7 @@ const PractitionerComponent = () => {
     const handleSendMail1 = async () => {
         try {
             // Make a POST request to the backend server endpoint to send email
-            const response = await axios.post('http://localhost:5000/send-email', {
+            const response = await axios.post('https://healthhubbackend-5ffw.onrender.com/send-email', {
                 to: testpatientEmail,
                 subject: 'Test Results',
                 text: `Dear patient, your test results are as follows: ${testResults}`
@@ -118,7 +118,7 @@ const PractitionerComponent = () => {
     const handleSendMail = async () => {
         try {
             // Make a POST request to the backend server endpoint
-            const response = await axios.post('http://localhost:5000/send-email', {
+            const response = await axios.post('https://healthhubbackend-5ffw.onrender.com/send-email', {
                 to: patientEmail, // Patient's email address
                 subject: 'New Appointment Date', // Email subject
                 text: ` Hii ${appointments[0].patientName},
