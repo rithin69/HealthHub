@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { firestore } from '../utils/Firebase';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc,setDoc }from 'firebase/firestore';
 import axios from 'axios'; 
+import SubmitModal from '../Components/SubmitModal'; 
+
 
 const PractitionerComponent = () => {
+    const [SubmitModal1, setSubmitModal1] = useState(false);
+
     const [appointments, setAppointments] = useState([]);
 
     const [loading, setLoading] = useState(true);
@@ -19,6 +23,12 @@ const PractitionerComponent = () => {
     const [Testmodal,setTestmodal]=useState(false);
 
     const [testpatientEmail,settestpatientEmail]=useState("");
+
+
+
+    const closeSubmitModal1 = () => {
+        setSubmitModal1(false);
+      };
 
     useEffect(() => {
         fetchData();
@@ -107,8 +117,10 @@ const PractitionerComponent = () => {
             } else {
                 console.error('Patient with email not found:', testpatientEmail);
             }
+           
     
             handleTestModalClose(); 
+            setSubmitModal1(true);
         } catch (error) {
             console.error('Error sending email:', error); // Log any errors
         }
@@ -177,6 +189,9 @@ const PractitionerComponent = () => {
                     <label htmlFor="testResults" className="block mb-2">Test Results:</label>
                     <input type="text" id="testResults" value={testResults} onChange={(e) => setTestResults(e.target.value)} className="border border-gray-300 rounded-md mb-4 p-2 block w-full" />
                     <button className="bg-blue-500 text-white px-4 py-2 mr-2" onClick={handleSendMail1}>Notify Patient</button>
+
+
+
                     <button className="bg-gray-300 text-gray-700 px-4 py-2" onClick={handleTestModalClose}>Cancel</button>
                 </div>
             </div>
@@ -196,6 +211,7 @@ const PractitionerComponent = () => {
             )}
            <div className="flex flex-col min-h-screen">
     <div className="flex-grow">
+    <SubmitModal SubmitModal1={SubmitModal1} closeSubmitModal1={closeSubmitModal1} message="Email Sent Sucessfully 😊" />
 
     </div>
     <footer className="bg-gray-200 text-gray-600 py-4 px-6 text-center">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
+import { auth } from "../utils/Firebase";
 //import { firestore, auth } from '../utils/Firebase';
 import 'firebase/compat/firestore';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc } from 'firebase/firestore';
@@ -11,7 +11,10 @@ import { Timestamp } from 'firebase/firestore';
 //import 'react-datepicker/dist/react-datepicker.css'; // Import date picker styles
 //import { ToastContainer, toast } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
- 
+import SubmitModal from '../Components/SubmitModal'; 
+import { useParams } from 'react-router-dom';
+
+
 const firebaseConfig = {
   // Your Firebase config details
  
@@ -29,6 +32,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
  
 function Doctor() {
+  const { fullName } = useParams();
+  const [SubmitModal1, setSubmitModal1] = useState(false);
   const [user, setUser] = useState(null);
   const [doctorName, setDoctorName] = useState('');
   const [patients, setPatients] = useState([]);
@@ -48,6 +53,10 @@ function Doctor() {
     condition: '',
     notes: '',
   });
+
+  const closeSubmitModal1 = () => {
+    setSubmitModal1(false);
+  };
  
   //const scheduledDate = Timestamp.fromDate(selectedDate);
  
@@ -71,30 +80,30 @@ function Doctor() {
   //     }
   //   });
  
-  useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        setUser(user);
-        try {
-          const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
-          if (doctorDoc.exists()) {
-            const doctorData = doctorDoc.data();
-            setDoctorName(doctorData.doctorName || 'Dr. Andrew');
-          } else {
-            setDoctorName('Unknown');
-          }
-        } catch (error) {
-          console.error('Error fetching doctor data:', error);
-          setDoctorName('Unknown');
-        }
-      } else {
-        setUser(null);
-        setDoctorName('');
-      }
-    });
+  // useEffect(() => {
+  //   const unsubscribe = auth().onAuthStateChanged(async (user) => {
+  //     if (user) {
+  //       setUser(user);
+  //       try {
+  //         const doctorDoc = await getDoc(doc(firestore, 'doctors', user.uid));
+  //         if (doctorDoc.exists()) {
+  //           const doctorData = doctorDoc.data();
+  //           setDoctorName(doctorData.doctorName || 'Dr. Andrew');
+  //         } else {
+  //           setDoctorName('Unknown');
+  //         }
+  //       } catch (error) {
+  //         console.error('Error fetching doctor data:', error);
+  //         setDoctorName('Unknown');
+  //       }
+  //     } else {
+  //       setUser(null);
+  //       setDoctorName('');
+  //     }
+  //   });
  
-    return unsubscribe;
-  }, []);
+  //   return unsubscribe;
+  // }, []);
  
  
  
@@ -283,50 +292,94 @@ if (user) {
       [e.target.name]: e.target.value,
     });
   };
+  // const getPatientRef = async (patientName) => {
+  //   try {
+  //     const patientsQuery = query(
+  //       collection(firestore, 'patient'),
+  //       where('fullName', '==', patientName),
+  //     );
+  //     const querySnapshot = await getDocs(patientsQuery);
+  //     if (!querySnapshot.empty) {
+  //       return querySnapshot.docs[0].ref;
+  //     }
+  //     return null;
+  //   } catch (error) {
+  //     console.error('Error fetching patient document:', error);
+  //     return null;
+  //   }
+  // };
+  
+
+
+
+
+
+
  
   // Handle submission of medical history form
-  const handleMedicalHistorySubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const patientRef = await getPatientRef(medicalHistoryForm.patientName);
-      if (patientRef) {
-        await updateDoc(patientRef, {
-          medicalHistory: firebase.firestore.FieldValue.arrayUnion({
-            condition: medicalHistoryForm.condition,
-            notes: medicalHistoryForm.notes,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp() // Add current timestamp
-          }),
-        });
-        console.log('Medical history updated successfully');
-        //toast.success('Medical history updated successfully!');
-        setMedicalHistoryForm({
-          patientName: '',
-          condition: '',
-          notes: '',
-        });
-      } else {
-        console.error('Patient not found');
-        //toast.error('Patient not found.');
-      }
-    } catch (error) {
-      console.error('Error updating medical history:', error);
-      //toast.error('Error updating medical history.');
-    }
+  // Get patient reference by name
+// Get patient reference by name
+async function getPatientRef(patientName) {
+  // const patientsRef = collection(firestore, 'patient');
+  const patientsRef = firebase.firestore().collection('patient');
+  const patientDoc = await patientsRef.where('fullName', '==', patientName).get();
+
+  if (patientDoc.empty) {
+    console.error('Patient not found');
+    return null;
+  }
+
+  return patientDoc.docs[0].ref;
+}
+
+// Update medical history
+async function updateMedicalHistory(patientRef, medicalHistoryEntry) {
+  try {
+    await patientRef.update({
+      medicalHistory: firebase.firestore.FieldValue.arrayUnion({
+        timestamp: firebase.firestore.Timestamp.now(),
+        condition: medicalHistoryEntry.condition,
+        notes: medicalHistoryEntry.notes,
+      }),
+    });
+  } catch (error) {
+    throw error; // Rethrow the error to allow the caller to handle it
+  }
+}
+
+// Format medical history entry
+function formatMedicalHistoryEntry(condition, notes) {
+  return {
+    condition,
+    notes,
   };
+}
+
+// Handle medical history submit
+const handleMedicalHistorySubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const patientName = medicalHistoryForm.patientName;
+    const patientRef = await getPatientRef(patientName);
+
+    if (patientRef) {
+      const medicalHistoryEntry = formatMedicalHistoryEntry(medicalHistoryForm.condition, medicalHistoryForm.notes);
+      await updateMedicalHistory(patientRef, medicalHistoryEntry);
+      console.log('Medical history updated successfully');
+    }
+    setSubmitModal1(true);
+  } catch (error) {
+    console.error('Error updating medical history:', error);
+    // Handle error (show error message, etc.)
+  }
+}
+  
+  
+  
+  
  
   // Function to get reference to patient document
-  const getPatientRef = async (patientName) => {
-    const patientsQuery = query(
-      collection(firestore, 'patient'),
-      where('patientName', '==', patientName),
-      //where('doctorId', '==', user?.uid),
-    );
-    const querySnapshot = await getDocs(patientsQuery);
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs[0].ref;
-    }
-    return null;
-  };
+  
  
  
  
@@ -352,7 +405,7 @@ if (user) {
     <div className="flex flex-col min-h-screen">
       <header className="bg-blue-500 text-white py-4 px-6">
         <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
-        <h2 className="text-xl font-bold">Welcome, Dr. Andrew</h2>
+        <h2 className="text-xl font-bold">Welcome, Dr {decodeURIComponent(fullName)}</h2>
       </header>
  
       {/* <ToastContainer
@@ -441,6 +494,7 @@ if (user) {
             <input type="text" name="notes" placeholder="Notes" value={medicalHistoryForm.notes} onChange={handleMedicalHistoryFormChange} />
             <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Medical History</button>
           </form>
+          <SubmitModal SubmitModal1={SubmitModal1} closeSubmitModal1={closeSubmitModal1} message="Medical History Updated Sucessfully 😊" />
         </div>
       </main>
  

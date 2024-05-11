@@ -72,6 +72,8 @@ const Login = () => {
     setErrorMessage(message);
     if (message || (!isSignInForm && !agreeToTerms)) return;
 
+    const emailUsername = formData.email.split('@')[0];
+
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
         auth,
@@ -108,7 +110,8 @@ const Login = () => {
               navigate('/practitionerdashboard');
               break;
             case 'doctor':
-              navigate('/doctordashboard');
+              navigate(`/doctordashboard/${encodeURIComponent(emailUsername)}`);
+              //navigate('/doctordashboard');
               break;
             case 'admin':
               navigate('/admindashboard');

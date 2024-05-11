@@ -12,6 +12,8 @@ import ProfileModal from '../Components/ProfileModal';
 
 
 const Hospitals = () => {
+   
+
     const [profileModalOpen, setProfileModalOpen] = useState(false);
 
     const [appointments, setAppointments] = useState([]);
@@ -50,8 +52,11 @@ const Hospitals = () => {
 
 
 
+    // const convertFirestoreTimestampToDate = (timestamp) => {
+    //     return timestamp ? new Date(timestamp.seconds * 1000) : new Date();
+    // };
     const convertFirestoreTimestampToDate = (timestamp) => {
-        return timestamp ? new Date(timestamp.seconds * 1000) : new Date();
+        return timestamp.toDate();
     };
 
 
@@ -65,17 +70,20 @@ const Hospitals = () => {
                 console.log("Original Data:", data.medicalHistory);
     
                 if (Array.isArray(data.medicalHistory) && data.medicalHistory.length > 0) {
+                    console.log("HEY I M INSIDE")
                     const convertedHistory = data.medicalHistory.map((entry, index) => {
                         console.log(`Entry ${index} before conversion:`, entry);
                         
-                        if (entry instanceof Timestamp) { 
-                            const date = convertFirestoreTimestampToDate(entry);
+                        // Check if entry.timestamp is a Timestamp object
+                        if (entry.timestamp instanceof Timestamp) {
+                            const date = convertFirestoreTimestampToDate(entry.timestamp);
                             console.log(`Converted Date ${index}:`, date);
-                            const condition = entry[1] || ''; 
-                            const notes = entry[2] || ''; 
-                            return [date, condition, notes]; 
+                            return {
+                                ...entry, // spread the existing properties
+                                date: date, // add or overwrite the date property
+                            };
                         } else {
-                            console.log(`Skipping conversion for entry ${index} as it is not a Timestamp.`);
+                            console.log(`Skipping conversion for entry ${index} as timestamp is not a Timestamp.`);
                             return entry;
                         }
                     });
@@ -286,6 +294,7 @@ const Hospitals = () => {
             setShowBookingForm(prevState => !prevState);
            
         }
+       
     };
 
     const handleBookingConfirmation1 = () => {
@@ -387,15 +396,15 @@ const Hospitals = () => {
             <div className="space-y-2">
                 <div>
                     <span className="font-bold text-gray-600">Date:</span>
-                    <p className="text-base">{medicalHistory[0][0].toLocaleDateString()}</p>
+                    <p className="text-base">{new Date(medicalHistory[0].date).toLocaleDateString()}</p>
                 </div>
                 <div>
                     <span className="font-bold text-gray-600">Condition:</span>
-                    <p className="text-base">{medicalHistory[1] || 'N/A'}</p>
+                    <p className="text-base">{medicalHistory[0].condition || 'N/A'}</p>
                 </div>
                 <div>
                     <span className="font-bold text-gray-600">Notes:</span>
-                    <p className="text-base">{medicalHistory[2] || 'N/A'}</p>
+                    <p className="text-base">{medicalHistory[0].notes || 'N/A'}</p>
                 </div>
             </div>
         </div>
