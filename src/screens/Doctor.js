@@ -484,6 +484,7 @@ const handleMedicalHistorySubmit = async (e) => {
         /> */}
             <button type="submit" className="bg-blue-500 text-white px-4 py-2">Submit Prescription</button>
           </form>
+          {/* <SubmitModal SubmitModal1={SubmitModal1} closeSubmitModal1={closeSubmitModal1} message="Medical Prescription Updated Sucessfully 😊" /> */}
         </div>
  
         <div className="container mx-auto">
