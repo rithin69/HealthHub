@@ -69,10 +69,17 @@ const Login = () => {
 
   const handleButtonClick = () => {
     const message = checkValidData(formData.email, formData.password);
-    setErrorMessage(message);
+    setErrorMessage(message); 
     if (message || (!isSignInForm && !agreeToTerms)) return;
 
-    const emailUsername = formData.email.split('@')[0];
+     // Split the email and remove unwanted parts
+     const emailParts = formData.email.split('@'); // Split the email into parts
+     let emailUsername = emailParts[0].toLowerCase(); // Convert to lower case to handle case insensitivity
+ 
+     // Remove prefix "dr" if present
+     if (emailUsername.startsWith('dr')) {
+         emailUsername = emailUsername.substring(2); // Remove first two characters assuming "dr" is always 2 chars
+     }
 
     if (!isSignInForm) {
       createUserWithEmailAndPassword(

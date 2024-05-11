@@ -70,21 +70,23 @@ const Hospitals = () => {
                 console.log("Original Data:", data.medicalHistory);
     
                 if (Array.isArray(data.medicalHistory) && data.medicalHistory.length > 0) {
-                    console.log("HEY I M INSIDE")
-                    const convertedHistory = data.medicalHistory.map((entry, index) => {
-                        console.log(`Entry ${index} before conversion:`, entry);
-                        
-                        // Check if entry.timestamp is a Timestamp object
-                        if (entry.timestamp instanceof Timestamp) {
+                    const convertedHistory = data.medicalHistory.map((entry) => {
+                        console.log(`Entry before conversion:`, entry);
+    
+                        // Ensure the timestamp is a Firestore Timestamp instance before converting
+                        if (entry.timestamp && entry.timestamp.toDate) {
                             const date = convertFirestoreTimestampToDate(entry.timestamp);
-                            console.log(`Converted Date ${index}:`, date);
+                            console.log(`Converted Date:`, date);
                             return {
-                                ...entry, // spread the existing properties
-                                date: date, // add or overwrite the date property
+                                ...entry,
+                                date: date, // overwrite the date property
                             };
                         } else {
-                            console.log(`Skipping conversion for entry ${index} as timestamp is not a Timestamp.`);
-                            return entry;
+                            console.log(`Skipping conversion for entry as timestamp is not a Timestamp.`);
+                            return {
+                                ...entry,
+                                date: new Date(), // default to current date if conversion is not possible
+                            };
                         }
                     });
     
@@ -387,29 +389,41 @@ const Hospitals = () => {
             </div>
 
         
-{medicalHistory && medicalHistory.length > 0 && (
+            {medicalHistory && medicalHistory.length > 0 && (
     <div className="absolute top-20 left-2/3 transform -translate-x-1/2 w-full max-w-4xl px-4">
         <div className="border bg-gray-200 shadow-lg rounded-lg p-4">
             <div className="bg-green-500 rounded-t-lg p-2">
                 <h1 className="font-bold text-white">Medical History</h1>
             </div>
-            <div className="space-y-2">
-                <div>
-                    <span className="font-bold text-gray-600">Date:</span>
-                    <p className="text-base">{new Date(medicalHistory[0].date).toLocaleDateString()}</p>
+            {medicalHistory.map((entry, index) => (
+                <div key={index}>
+                    <div className="space-y-2 mt-4">
+                        <div>
+                            <span className="font-bold text-gray-600">Date:</span>
+                            <p className="text-base">{entry.date.toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                            <span className="font-bold text-gray-600">Condition:</span>
+                            <p className="text-base">{entry.condition || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <span className="font-bold text-gray-600">Notes:</span>
+                            <p className="text-base">{entry.notes || 'N/A'}</p>
+                        </div>
+                    </div>
+                    {/* Add two horizontal lines below each entry, except for the last one */}
+                    {index !== medicalHistory.length - 1 && (
+                        <>
+                            <hr className="my-2" style={{ border: '1px solid #ccc' }} /> {/* First horizontal line with explicit style */}
+                            <hr className="my-2" style={{ border: '1px solid #ccc' }} /> {/* Second horizontal line with explicit style */}
+                        </>
+                    )}
                 </div>
-                <div>
-                    <span className="font-bold text-gray-600">Condition:</span>
-                    <p className="text-base">{medicalHistory[0].condition || 'N/A'}</p>
-                </div>
-                <div>
-                    <span className="font-bold text-gray-600">Notes:</span>
-                    <p className="text-base">{medicalHistory[0].notes || 'N/A'}</p>
-                </div>
-            </div>
+            ))}
         </div>
     </div>
 )}
+
 
 {/* )} */}
 
