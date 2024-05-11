@@ -3,21 +3,35 @@ import RegistrationRequests from '../Components/RegistrationRequests';
 import AddDoctorModal from '../Components/AddDoctorModal';
 import AddPracticeModal from '../Components/AddPracticeModal';
 import AddPractitionerModal from '../Components/AddPractitionerModal';
+import { useNavigate } from 'react-router-dom';
+import Login from './Login';
+import { Route } from 'react-router-dom';
+
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('registrationRequests');
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [showPractitionerModal, setShowPractitionerModal] = useState(false);
   const [showPracticeModal, setShowPracticeModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+  };
+
+  const handleLogout = () => {
+    navigate('/')
   };
 
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="container mx-auto py-8 px-4">
         <h2 className="text-3xl font-bold text-center mb-8">Admin Dashboard</h2>
+        <div className="flex justify-end mb-4">
+          <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded focus:outline-none">
+            Logout
+          </button>
+        </div>
         <div className="mb-8">
           <div className="bg-gray-200 border rounded-lg shadow-sm p-4">
             <div className="flex justify-center space-x-4">
