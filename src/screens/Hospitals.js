@@ -265,7 +265,7 @@ const Hospitals = () => {
 
 
             
-            const patientName = registrationData1.fullName;
+            const patientName = registrationData1.patientName;
             const patientemailid = registrationData1.email;
 
            
