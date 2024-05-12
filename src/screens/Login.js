@@ -69,9 +69,24 @@ const Login = () => {
 
   const handleButtonClick = () => {
     const message = checkValidData(formData.email, formData.password);
+<<<<<<< HEAD
     setErrorMessage(message);
     if (message || (!isSignInForm && !agreeToTerms)) return;
 
+=======
+    setErrorMessage(message); 
+    if (message || (!isSignInForm && !agreeToTerms)) return;
+
+     // Split the email and remove unwanted parts
+     const emailParts = formData.email.split('@'); // Split the email into parts
+     let emailUsername = emailParts[0].toLowerCase(); // Convert to lower case to handle case insensitivity
+ 
+     // Remove prefix "dr" if present
+     if (emailUsername.startsWith('dr')) {
+         emailUsername = emailUsername.substring(2); // Remove first two characters assuming "dr" is always 2 chars
+     }
+
+>>>>>>> 65758090ec395917be33f460e1715667859878d4
     if (!isSignInForm) {
       createUserWithEmailAndPassword(
         auth,
@@ -108,7 +123,12 @@ const Login = () => {
               navigate('/practitionerdashboard');
               break;
             case 'doctor':
+<<<<<<< HEAD
               navigate('/doctordashboard');
+=======
+              navigate(`/doctordashboard/${encodeURIComponent(emailUsername)}`);
+              //navigate('/doctordashboard');
+>>>>>>> 65758090ec395917be33f460e1715667859878d4
               break;
             case 'admin':
               navigate('/admindashboard');
